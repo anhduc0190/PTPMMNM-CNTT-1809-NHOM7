@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Nhận Hoàn Tất - Alpha Store</title>
+    <link rel="stylesheet" href="../demo.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🛒 Alpha Store <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website A)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html">Sản phẩm</a></li>
+            <li><a href="product-detail.html">Chi tiết SP</a></li>
+            <li><a href="download.html">Tải Catalog</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+            <li><a href="thank-you.html" class="active">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge">
+            <span class="dot"></span>
+            <span>Tracking Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="max-width: 600px; margin: 2rem auto; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 3rem 2rem; box-shadow: var(--shadow);">
+            <div style="font-size: 4rem; color: #10b981; margin-bottom: 1rem;">🎉</div>
+            <h1 style="font-size: 2rem; margin-bottom: 0.8rem; color: var(--secondary);">Thao Tác Hoàn Tất Thành Công!</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; line-height: 1.6;">
+                Cảm ơn bạn đã trải nghiệm thao tác trên website thử nghiệm Alpha Store. Sự kiện xem trang xác nhận <code>page_view</code> đã được ghi nhận vào cơ sở dữ liệu hệ thống.
+            </p>
+
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="index.html" class="btn" data-track-click data-track-id="btn-return-home">
+                    🏠 Quay lại Trang Chủ
+                </a>
+                <a href="../../dashboard.php" class="btn btn-dark" target="_blank">
+                    📊 Mở Dashboard Quản Trị
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Alpha Store Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_a_alpha_shop_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Xác Nhận Hoàn Tất!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

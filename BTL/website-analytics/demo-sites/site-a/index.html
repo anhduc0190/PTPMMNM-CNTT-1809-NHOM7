@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - Alpha Store (Website A)</title>
+    <link rel="stylesheet" href="../demo.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🛒 Alpha Store <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website A)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Trang chủ</a></li>
+            <li><a href="products.html">Sản phẩm</a></li>
+            <li><a href="product-detail.html">Chi tiết SP</a></li>
+            <li><a href="download.html">Tải Catalog</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+            <li><a href="thank-you.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge">
+            <span class="dot"></span>
+            <span>Tracking Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>Cửa Hàng Công Nghệ Mẫu Alpha Store</h1>
+            <p>Trải nghiệm mua sắm thiết bị hiện đại. Mọi lượt xem trang, thao tác bấm nút và chuỗi tải tài liệu được thu thập tự động theo chuẩn bảo mật.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="products.html" class="btn btn-outline" data-track-click data-track-id="btn-hero-explore">Khám phá sản phẩm</a>
+                <a href="download.html" class="btn btn-accent" data-track-click data-track-id="btn-hero-download">Tải Catalog 2026</a>
+            </div>
+        </section>
+
+        <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Sản Phẩm Nổi Bật</h2>
+        <div class="card-grid">
+            <div class="card">
+                <h3>Laptop Pro Ultrabook 14"</h3>
+                <p>Hiệu năng vượt trội với chip thế hệ mới, màn hình 2.8K OLED siêu nét, pin dùng 18 giờ liên tục.</p>
+                <div class="price">24.990.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-view-ultrabook">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-cart-ultrabook">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Bàn Phím Cơ Wireless RGB</h3>
+                <p>Switch quang học phản hồi 0.1ms, kết nối 3 chế độ (Bluetooth 5.3, Wireless 2.4GHz và Type-C).</p>
+                <div class="price">1.850.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-view-keyboard">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-cart-keyboard">Thêm vào giỏ</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Tai Nghe Chống Ồn ANC Gen 2</h3>
+                <p>Khử ồn chủ động 42dB, âm thanh chuẩn Hi-Res Audio, thời lượng pin 40 giờ kèm hộp sạc nhanh.</p>
+                <div class="price">3.200.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-view-headphone">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-cart-headphone">Thêm vào giỏ</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Alpha Store Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <!-- TÍCH HỢP JAVASCRIPT TRACKING SDK -->
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_a_alpha_shop_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+
+    <script>
+        // Hiển thị toast thông báo khi sự kiện được gửi thành công
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã tự động gửi sự kiện <b>page_view</b> cho Trang chủ!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) {
+                    showToast('Đã gửi sự kiện <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

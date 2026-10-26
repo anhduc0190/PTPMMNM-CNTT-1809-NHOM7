@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới Thiệu - Beta Services</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --secondary: #1e1b4b;
+            --accent: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🚀 Beta Services <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website B)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="about.html" class="active">Giới thiệu</a></li>
+            <li><a href="services.html">Dịch vụ</a></li>
+            <li><a href="service-detail.html">Chi tiết DV</a></li>
+            <li><a href="register.html">Đăng ký & Hồ sơ</a></li>
+            <li><a href="confirmation.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge" style="background:#eef2ff; border-color:#c7d2fe; color:#3730a3;">
+            <span class="dot" style="background:#6366f1;"></span>
+            <span>Tracking Beta Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2.5rem; box-shadow:var(--shadow); margin-bottom:2rem;">
+            <h1 style="font-size: 2rem; margin-bottom: 1rem; color:var(--secondary);">Về Chúng Tôi — Beta Services</h1>
+            <p style="color:var(--text-muted); font-size:1.05rem; margin-bottom:1.5rem; line-height:1.7;">
+                Beta Services là đơn vị tiên phong trong lĩnh vực tư vấn giải pháp phần mềm mã nguồn mở và kiểm định an ninh mạng. Được thành lập với mục tiêu hỗ trợ doanh nghiệp Việt Nam làm chủ công nghệ và tối ưu chi phí đầu tư hạ tầng.
+            </p>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem; margin:2rem 0;">
+                <div style="padding:1.2rem; background:#f8fafc; border-radius:8px; border-left:4px solid var(--primary);">
+                    <div style="font-size:1.8rem; font-weight:800; color:var(--primary);">120+</div>
+                    <div style="color:var(--text-muted); font-size:0.9rem;">Dự án đã triển khai</div>
+                </div>
+                <div style="padding:1.2rem; background:#f8fafc; border-radius:8px; border-left:4px solid var(--accent);">
+                    <div style="font-size:1.8rem; font-weight:800; color:var(--accent);">99.9%</div>
+                    <div style="color:var(--text-muted); font-size:0.9rem;">SLA cam kết dịch vụ</div>
+                </div>
+                <div style="padding:1.2rem; background:#f8fafc; border-radius:8px; border-left:4px solid #10b981;">
+                    <div style="font-size:1.8rem; font-weight:800; color:#10b981;">24/7</div>
+                    <div style="color:var(--text-muted); font-size:0.9rem;">Hỗ trợ chuyên gia kỹ thuật</div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:1rem;">
+                <a href="services.html" class="btn" data-track-click data-track-id="btn-about-view-services">Danh mục dịch vụ</a>
+                <a href="register.html" class="btn btn-outline" style="color:var(--text-main); border-color:var(--border);" data-track-click data-track-id="btn-about-download-profile">Tải hồ sơ năng lực</a>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Beta Services Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_b_beta_portal_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking Beta:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Giới Thiệu!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

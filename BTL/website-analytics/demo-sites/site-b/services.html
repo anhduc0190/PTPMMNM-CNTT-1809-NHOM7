@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Dịch Vụ - Beta Services</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --secondary: #1e1b4b;
+            --accent: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🚀 Beta Services <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website B)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="services.html" class="active">Dịch vụ</a></li>
+            <li><a href="service-detail.html">Chi tiết DV</a></li>
+            <li><a href="register.html">Đăng ký & Hồ sơ</a></li>
+            <li><a href="confirmation.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge" style="background:#eef2ff; border-color:#c7d2fe; color:#3730a3;">
+            <span class="dot" style="background:#6366f1;"></span>
+            <span>Tracking Beta Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="margin-bottom:2rem;">
+            <h1 style="font-size: 1.8rem; margin-bottom: 0.3rem;">Các Gói Dịch Vụ Chuyên Sâu</h1>
+            <p style="color:var(--text-muted);">Giải pháp chuyển đổi số toàn diện cho doanh nghiệp vừa và lớn</p>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3>Cloud Migration & Kubernetes</h3>
+                <p>Chuyển đổi hệ thống nguyên khối (monolith) sang microservices chạy trên cụm K8s tự động co giãn theo tải thực tế.</p>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <a href="service-detail.html" class="btn" data-track-click data-track-id="btn-svc-k8s-detail">Chi tiết</a>
+                    <a href="register.html" class="btn btn-dark" data-track-click data-track-id="btn-svc-k8s-reg">Đăng ký tư vấn</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Security Audit & Pentest</h3>
+                <p>Kiểm thử xâm nhập hộp đen (Black-box), hộp xám và rà quét mã nguồn (SAST/DAST) phát hiện lỗ hổng SQLi, XSS, RCE.</p>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <a href="service-detail.html" class="btn" data-track-click data-track-id="btn-svc-sec-detail">Chi tiết</a>
+                    <a href="register.html" class="btn btn-dark" data-track-click data-track-id="btn-svc-sec-reg">Đăng ký tư vấn</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Xây Dựng Data Pipeline & Analytics</h3>
+                <p>Thu thập và xử lý luồng dữ liệu thời gian thực, lưu trữ data warehouse và trực quan hóa dashboard điều hành.</p>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <a href="service-detail.html" class="btn" data-track-click data-track-id="btn-svc-data-detail">Chi tiết</a>
+                    <a href="register.html" class="btn btn-dark" data-track-click data-track-id="btn-svc-data-reg">Đăng ký tư vấn</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Beta Services Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_b_beta_portal_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking Beta:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Dịch Vụ!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

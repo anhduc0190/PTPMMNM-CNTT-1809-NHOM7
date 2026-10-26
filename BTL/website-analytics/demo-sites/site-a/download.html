@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tải Tài Liệu & Catalog - Alpha Store</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        .download-box {
+            background: var(--surface);
+            border: 2px dashed #93c5fd;
+            border-radius: var(--radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            max-width: 680px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin: 1.5rem 0;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🛒 Alpha Store <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website A)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html">Sản phẩm</a></li>
+            <li><a href="product-detail.html">Chi tiết SP</a></li>
+            <li><a href="download.html" class="active">Tải Catalog</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+            <li><a href="thank-you.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge">
+            <span class="dot"></span>
+            <span>Tracking Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="text-align:center; margin-bottom: 2.5rem;">
+            <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Trung Tâm Tải Tài Liệu & Catalog Sản Phẩm</h1>
+            <p style="color:var(--text-muted); max-width:650px; margin:0 auto;">
+                Tải về bảng thông số kỹ thuật, bảng giá sỉ và danh mục sản phẩm chính thức 2026. Thao tác tải sẽ kích hoạt chuỗi chuyển đổi kiểm thử (Funnel).
+            </p>
+        </div>
+
+        <div class="download-box">
+            <div style="font-size:3.5rem; margin-bottom:1rem;">📄</div>
+            <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">Catalog Sản Phẩm Alpha Store 2026</h2>
+            <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+                Định dạng: PDF | Dung lượng: ~1.2 MB | Phiên bản: 2026.1 (Cập nhật tháng 10/2026)
+            </p>
+
+            <button id="btn-download-catalog" class="btn btn-accent" style="font-size:1.05rem; padding:0.85rem 2rem;">
+                📥 Tải Ngay Bản PDF Đầy Đủ
+            </button>
+
+            <div id="progress-container" class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+
+            <div id="download-status" style="margin-top:1rem; font-size:0.9rem; font-weight:600; color:var(--text-muted);">
+                Nhấn nút trên để bắt đầu tải tài liệu
+            </div>
+
+            <div style="margin-top:2rem; padding:1rem; background:#f8fafc; border-radius:8px; border:1px solid var(--border); font-size:0.85rem; text-align:left;">
+                <b>Chuỗi thao tác thử nghiệm (Conversion Funnel):</b><br>
+                1. <code>page_view</code>: Đã tự động ghi nhận khi bạn mở trang này.<br>
+                2. <code>download_start</code>: Sẽ được gửi ngay khi bạn bấm nút tải.<br>
+                3. <code>download_complete</code>: Chỉ được gửi sau khi trình duyệt hoàn tất tải file về máy!
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Alpha Store Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_a_alpha_shop_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3500);
+            }
+
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Tải Tài Liệu!');
+
+            var btn = document.getElementById('btn-download-catalog');
+            var pBar = document.getElementById('progress-container');
+            var pFill = document.getElementById('progress-fill');
+            var statusText = document.getElementById('download-status');
+
+            btn.addEventListener('click', function() {
+                btn.disabled = true;
+                btn.innerText = 'Đang chuẩn bị tải...';
+                pBar.style.display = 'block';
+                pFill.style.width = '20%';
+                statusText.innerText = 'Đang kết nối và kích hoạt download_start...';
+
+                // Gọi SDK trackDownload
+                window.WebTracker.trackDownload('catalog-2026.pdf', 'Catalog-Alpha-Store-2026.pdf', function(err, res) {
+                    if (err) {
+                        statusText.innerText = '❌ Lỗi khi tải file: ' + err.message;
+                        statusText.style.color = '#ef4444';
+                        btn.disabled = false;
+                        btn.innerText = 'Thử tải lại';
+                    } else {
+                        pFill.style.width = '100%';
+                        statusText.innerText = '✅ Tải hoàn tất! Sự kiện download_complete đã được ghi nhận vào CSDL.';
+                        statusText.style.color = '#10b981';
+                        btn.innerText = 'Tải Lại Lần Nữa';
+                        btn.disabled = false;
+                        showToast('Hoàn tất chuỗi: <b>download_complete</b> đã được lưu vào hệ thống!');
+                        
+                        // Chuyển hướng sang trang xác nhận sau 2.5s để người dùng thấy rõ luồng
+                        setTimeout(function() {
+                            window.location.href = 'thank-you.html';
+                        }, 2500);
+                    }
+                });
+
+                showToast('Đã gửi sự kiện <b>download_start</b>!');
+                setTimeout(function() { pFill.style.width = '65%'; }, 400);
+            });
+        });
+    </script>
+</body>
+</html>

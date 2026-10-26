@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Sản Phẩm - Laptop Pro Ultrabook 14"</title>
+    <link rel="stylesheet" href="../demo.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🛒 Alpha Store <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website A)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html">Sản phẩm</a></li>
+            <li><a href="product-detail.html" class="active">Chi tiết SP</a></li>
+            <li><a href="download.html">Tải Catalog</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+            <li><a href="thank-you.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge">
+            <span class="dot"></span>
+            <span>Tracking Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2.5rem; display:grid; grid-template-columns: 1fr 1fr; gap:2.5rem; box-shadow:var(--shadow);">
+            <div>
+                <div style="background:#eff6ff; height:320px; border-radius:var(--radius); display:flex; align-items:center; justify-content:center; font-size:4rem; border:1px dashed #93c5fd;">
+                    💻
+                </div>
+            </div>
+
+            <div>
+                <span style="background:#dbeafe; color:#1e40af; font-size:0.8rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:6px;">FLAGSHIP 2026</span>
+                <h1 style="font-size:1.85rem; margin:0.8rem 0; color:var(--secondary);">Laptop Pro Ultrabook 14" OLED</h1>
+                <p style="color:var(--text-muted); margin-bottom:1.2rem;">
+                    Dòng máy tính xách tay cao cấp dành cho lập trình viên và chuyên gia sáng tạo nội dung. Trang bị vi xử lý thế hệ mới, hỗ trợ tăng tốc AI NPU chuyên dụng.
+                </p>
+
+                <div style="font-size:1.8rem; font-weight:800; color:var(--primary); margin-bottom:1.5rem;">
+                    24.990.000 đ
+                </div>
+
+                <div style="margin-bottom:1.8rem;">
+                    <h4 style="margin-bottom:0.6rem;">Thông số kỹ thuật nổi bật:</h4>
+                    <ul style="padding-left:1.2rem; color:var(--text-muted); line-height:1.8; font-size:0.95rem;">
+                        <li>CPU: Intel Core Ultra 7 155H (16 nhân, 22 luồng, Turbo 4.8GHz)</li>
+                        <li>RAM: 32GB LPDDR5X 7467MHz Dual Channel</li>
+                        <li>Lưu trữ: 1TB NVMe PCIe 4.0 SSD (Đọc 7,000 MB/s)</li>
+                        <li>Màn hình: 14 inch 2.8K OLED (2880x1800), 120Hz, 100% DCI-P3</li>
+                        <li>Pin: 75Whr kèm sạc nhanh GaN 100W Type-C</li>
+                    </ul>
+                </div>
+
+                <div style="display:flex; gap:1rem;">
+                    <button class="btn btn-accent" id="btn-add-cart-detail" data-track-click data-track-id="btn-add-cart-detail">
+                        🛒 Thêm Vào Giỏ Hàng
+                    </button>
+                    <a href="download.html" class="btn btn-dark" data-track-click data-track-id="btn-view-catalog-link">
+                        📄 Tải Tài Liệu Kỹ Thuật
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Alpha Store Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_a_alpha_shop_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Chi Tiết Sản Phẩm!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

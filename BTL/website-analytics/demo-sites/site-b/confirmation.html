@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Nhận Đăng Ký - Beta Services</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --secondary: #1e1b4b;
+            --accent: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🚀 Beta Services <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website B)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="services.html">Dịch vụ</a></li>
+            <li><a href="service-detail.html">Chi tiết DV</a></li>
+            <li><a href="register.html">Đăng ký & Hồ sơ</a></li>
+            <li><a href="confirmation.html" class="active">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge" style="background:#eef2ff; border-color:#c7d2fe; color:#3730a3;">
+            <span class="dot" style="background:#6366f1;"></span>
+            <span>Tracking Beta Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="max-width: 620px; margin: 2rem auto; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 3rem 2rem; box-shadow: var(--shadow);">
+            <div style="font-size: 4rem; color: #6366f1; margin-bottom: 1rem;">✨</div>
+            <h1 style="font-size: 2rem; margin-bottom: 0.8rem; color: var(--secondary);">Đăng Ký & Tải Hồ Sơ Hoàn Tất!</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 2rem; line-height: 1.6;">
+                Cảm ơn bạn đã quan tâm đến giải pháp của Beta Services. Sự kiện xem trang <code>page_view</code> đã được ghi nhận riêng cho Website B (không lẫn với Website A).
+            </p>
+
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="index.html" class="btn" style="background:#6366f1;" data-track-click data-track-id="btn-beta-confirm-home">
+                    🏠 Quay lại Trang Chủ
+                </a>
+                <a href="../../dashboard.php" class="btn btn-dark" target="_blank">
+                    📊 Kiểm Tra Trên Dashboard
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Beta Services Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_b_beta_portal_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking Beta:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Xác Nhận Website B!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

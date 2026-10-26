@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Dịch Vụ - Cloud Migration & DevOps</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --secondary: #1e1b4b;
+            --accent: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🚀 Beta Services <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website B)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="services.html">Dịch vụ</a></li>
+            <li><a href="service-detail.html" class="active">Chi tiết DV</a></li>
+            <li><a href="register.html">Đăng ký & Hồ sơ</a></li>
+            <li><a href="confirmation.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge" style="background:#eef2ff; border-color:#c7d2fe; color:#3730a3;">
+            <span class="dot" style="background:#6366f1;"></span>
+            <span>Tracking Beta Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2.5rem; box-shadow:var(--shadow);">
+            <span style="background:#e0e7ff; color:#3730a3; font-size:0.8rem; font-weight:700; padding:0.25rem 0.6rem; border-radius:6px;">DỊCH VỤ DOANH NGHIỆP</span>
+            <h1 style="font-size:1.9rem; margin:0.8rem 0; color:var(--secondary);">Dịch Vụ Chuyển Đổi Lên Đám Mây & Triển Khai K8s</h1>
+            <p style="color:var(--text-muted); font-size:1.05rem; margin-bottom:1.5rem; line-height:1.7;">
+                Giúp doanh nghiệp hiện đại hóa cơ sở hạ tầng, tự động hóa quy trình triển khai và giảm thiểu rủi ro downtime trong quá trình nâng cấp ứng dụng.
+            </p>
+
+            <h3 style="margin-bottom:0.8rem; color:var(--secondary);">Quy trình 4 giai đoạn chuẩn hóa:</h3>
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:2rem;">
+                <div style="padding:1rem; background:#f8fafc; border-radius:8px; border:1px solid var(--border);">
+                    <div style="font-weight:700; color:var(--primary); margin-bottom:0.3rem;">1. Khảo sát & Đánh giá</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Phân tích kiến trúc hiện tại và xác định mức độ sẵn sàng đám mây.</div>
+                </div>
+                <div style="padding:1rem; background:#f8fafc; border-radius:8px; border:1px solid var(--border);">
+                    <div style="font-weight:700; color:var(--primary); margin-bottom:0.3rem;">2. Thiết kế Kiến trúc</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Xây dựng mô hình High Availability, Multi-zone dự phòng.</div>
+                </div>
+                <div style="padding:1rem; background:#f8fafc; border-radius:8px; border:1px solid var(--border);">
+                    <div style="font-weight:700; color:var(--primary); margin-bottom:0.3rem;">3. Di chuyển & Kiểm thử</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Chuyển dữ liệu không gián đoạn (Zero-downtime migration).</div>
+                </div>
+                <div style="padding:1rem; background:#f8fafc; border-radius:8px; border:1px solid var(--border);">
+                    <div style="font-weight:700; color:var(--primary); margin-bottom:0.3rem;">4. Vận hành & Giám sát</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">Cài đặt Prometheus, Grafana và bàn giao tài liệu kỹ thuật.</div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:1rem;">
+                <a href="register.html" class="btn" style="background:#6366f1;" data-track-click data-track-id="btn-detail-register-now">
+                    📝 Đăng Ký Tư Vấn Ngay
+                </a>
+                <a href="services.html" class="btn btn-outline" style="color:var(--text-main); border-color:var(--border);" data-track-click data-track-id="btn-detail-back-services">
+                    ↩️ Quay Lại Danh Sách
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Beta Services Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_b_beta_portal_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking Beta:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Chi Tiết Dịch Vụ!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

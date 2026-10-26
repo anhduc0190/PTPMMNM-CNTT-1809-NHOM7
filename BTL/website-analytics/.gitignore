@@ -1,0 +1,39 @@
+# ====================================================================
+# GITIGNORE: WEBSITE ANALYTICS PLATFORM
+# ====================================================================
+
+# Moi truong & Local configs
+.env
+.env.local
+.env.*.local
+
+# IDE & Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Logs & Temporary files
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+
+# PHP / Composer / Vendors
+vendor/
+composer.phar
+composer.lock
+
+# Test artifacts
+tests/coverage/
+.phpunit.result.cache
+
+# OS generated files
+desktop.ini
+$RECYCLE.BIN/

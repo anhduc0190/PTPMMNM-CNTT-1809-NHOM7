@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beta Portal — Website Thử 2</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0d1117; color: #e6edf3; }
+    header {
+      background: #161b22; border-bottom: 1px solid #30363d;
+      padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+    }
+    header h1 { font-size: 1.3rem; color: #58a6ff; }
+    nav a { color: #8b949e; text-decoration: none; margin-left: 16px; font-size: .9rem; }
+    nav a:hover { color: #58a6ff; }
+    .hero { text-align: center; padding: 72px 24px; background: linear-gradient(180deg, #0d1117, #161b22); }
+    .hero h2 { font-size: 2.2rem; margin-bottom: 16px; }
+    .hero p  { color: #8b949e; margin-bottom: 32px; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .btn {
+      display: inline-block; padding: 12px 28px; border-radius: 8px;
+      font-weight: 600; cursor: pointer; border: none; font-size: 1rem; margin: 6px;
+      transition: all .2s;
+    }
+    .btn-blue   { background: #1f6feb; color: white; }
+    .btn-blue:hover { background: #388bfd; }
+    .btn-green  { background: #238636; color: white; }
+    .btn-green:hover { background: #2ea043; }
+    .btn-gray   { background: #21262d; color: #8b949e; border: 1px solid #30363d; }
+    .container  { max-width: 900px; margin: 0 auto; padding: 48px 24px; }
+    .steps {
+      display: flex; flex-direction: column; gap: 24px; max-width: 600px; margin: 0 auto;
+    }
+    .step-card {
+      background: #161b22; border: 1px solid #30363d; border-radius: 12px;
+      padding: 24px; display: flex; align-items: flex-start; gap: 16px;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%; background: #1f6feb;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; flex-shrink: 0;
+    }
+    .step-card h3 { margin-bottom: 6px; }
+    .step-card p  { color: #8b949e; font-size: .88rem; }
+    .step-card .btn { margin-top: 12px; }
+    .notice {
+      background: #0c2d6b; border: 1px solid #1f6feb; border-radius: 8px;
+      padding: 12px 16px; margin-bottom: 32px; font-size: .85rem; color: #58a6ff;
+    }
+    footer {
+      background: #161b22; border-top: 1px solid #30363d;
+      text-align: center; padding: 20px; color: #6e7681; font-size: .85rem;
+    }
+    #state-display {
+      background: #161b22; border: 1px solid #30363d; border-radius: 8px;
+      padding: 16px; text-align: center; font-size: .9rem; color: #8b949e;
+      max-width: 600px; margin: 24px auto;
+    }
+    #state-display .completed { color: #3fb950; font-size: 1.2rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚡ Beta Portal</h1>
+    <nav>
+      <a href="/home">Trang chủ</a>
+      <a href="/start">Bắt đầu</a>
+      <a href="/step1">Bước 1</a>
+      <a href="/step2">Bước 2</a>
+      <a href="/complete">Hoàn tất</a>
+      <a href="/survey">Khảo sát</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h2>Beta Portal</h2>
+    <p>Website thử nghiệm theo dõi chuỗi thao tác người dùng theo thứ tự đã định nghĩa</p>
+    <button id="btn-start" class="btn btn-blue" data-wa-event="click" data-wa-target="#btn-start">
+      🚀 Bắt đầu hành trình
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="notice">
+      ⚠️ <strong>Thông báo:</strong> Website này đang được theo dõi chuỗi thao tác
+      (pageview → bắt đầu → hoàn tất) phục vụ mục đích nghiên cứu học thuật.
+      Không thu thập thông tin cá nhân hay nội dung nhập liệu.
+    </div>
+
+    <div id="state-display">
+      Trạng thái: <span id="state-text">Chưa bắt đầu</span>
+    </div>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div>
+          <h3>Xem trang (Pageview)</h3>
+          <p>Tự động ghi nhận khi bạn mở trang này. Không cần thao tác.</p>
+          <span style="color:#3fb950;font-size:.85rem">✅ Đã ghi nhận</span>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div>
+          <h3>Bắt đầu quy trình</h3>
+          <p>Bấm nút để ghi nhận bước bắt đầu. Đây là bước 2 trong chuỗi.</p>
+          <button id="btn-step2-start" class="btn btn-blue"
+                  data-wa-event="click" data-wa-target="#btn-start">
+            ▶ Bắt đầu
+          </button>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div>
+          <h3>Hoàn tất</h3>
+          <p>Bấm nút khi đã hoàn thành các bước. Chuỗi thao tác được tính hoàn tất.</p>
+          <button id="btn-complete" class="btn btn-green"
+                  data-wa-event="click" data-wa-target="#btn-complete">
+            ✅ Hoàn tất
+          </button>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">★</div>
+        <div>
+          <h3>Khảo sát (tuỳ chọn)</h3>
+          <p>Gửi biểu mẫu — chỉ ghi nhận hành động gửi, không có nội dung.</p>
+          <form id="form-survey" style="margin-top:12px">
+            <input type="text" placeholder="Phản hồi (không được lưu)"
+                   style="background:#0d1117;border:1px solid #30363d;color:#e6edf3;
+                          padding:8px 12px;border-radius:6px;width:100%;margin-bottom:8px">
+            <button type="submit" class="btn btn-gray">Gửi khảo sát</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Beta Portal — Website thử nghiệm học thuật | Chỉ theo dõi chuỗi thao tác, không có dữ liệu cá nhân</p>
+  </footer>
+
+  <!-- Tracker tương thích cả XAMPP localhost (Port 80) và Built-in PHP (Port 8200) -->
+  <script>
+    var isXampp = window.location.port === '' || window.location.port === '80';
+    var trackerSrc = isXampp ? '/web-analytics/public/assets/js/tracker.js' : 'http://127.0.0.1:8200/assets/js/tracker.js';
+    var collectEndpoint = isXampp ? '/web-analytics/public/collect.php' : 'http://127.0.0.1:8200/collect.php';
+    document.write('<script src="' + trackerSrc + '"><\/script>');
+  </script>
+  <script>
+    // API key của Website 2 (Beta Portal)
+    var waApiKey = window.WA_API_KEY || 'dcdc1f9ebf8b3d7efa178157bbde2fd18ac8c9f45c79dc83cacb104daaa3a98d';
+    if (typeof WA !== 'undefined') {
+      WA.init({
+        apiKey:       waApiKey,
+        collectUrl:   collectEndpoint,
+        sessionToken: localStorage.getItem('wa_session') || WA.newSession(),
+      });
+    }
+
+    // Cập nhật trạng thái UI
+    var started   = false;
+    var completed = false;
+
+    document.getElementById('btn-step2-start').addEventListener('click', function() {
+      started = true;
+      document.getElementById('state-text').textContent = '✅ Đã bắt đầu — chờ hoàn tất';
+      document.getElementById('state-text').style.color = '#e3b341';
+    });
+
+    document.getElementById('btn-complete').addEventListener('click', function() {
+      if (started) {
+        completed = true;
+        document.getElementById('state-display').innerHTML =
+          '<span class="completed">🎉 Đã hoàn tất chuỗi thao tác!</span>';
+      } else {
+        document.getElementById('state-text').textContent =
+          '⚠ Hãy bấm Bắt đầu trước khi hoàn tất';
+        document.getElementById('state-text').style.color = '#f85149';
+      }
+    });
+  </script>
+</body>
+</html>

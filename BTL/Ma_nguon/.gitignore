@@ -1,0 +1,4 @@
+.local/
+*.log
+*.bak
+fixtures/expected.json

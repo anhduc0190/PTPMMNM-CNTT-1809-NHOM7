@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Sản Phẩm - Alpha Store</title>
+    <link rel="stylesheet" href="../demo.css">
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🛒 Alpha Store <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website A)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html" class="active">Sản phẩm</a></li>
+            <li><a href="product-detail.html">Chi tiết SP</a></li>
+            <li><a href="download.html">Tải Catalog</a></li>
+            <li><a href="contact.html">Liên hệ</a></li>
+            <li><a href="thank-you.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge">
+            <span class="dot"></span>
+            <span>Tracking Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+            <div>
+                <h1 style="font-size: 1.8rem; margin-bottom: 0.3rem;">Tất Cả Sản Phẩm Công Nghệ</h1>
+                <p style="color:var(--text-muted);">Khám phá 6 sản phẩm chọn lọc mới nhất năm 2026</p>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+                <button class="btn btn-dark" data-track-click data-track-id="btn-filter-all">Tất cả</button>
+                <button class="btn btn-outline" style="color:var(--text-main); border-color:var(--border);" data-track-click data-track-id="btn-filter-laptop">Laptop</button>
+                <button class="btn btn-outline" style="color:var(--text-main); border-color:var(--border);" data-track-click data-track-id="btn-filter-gear">Gaming Gear</button>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <h3>Laptop Pro Ultrabook 14"</h3>
+                <p>Màn hình OLED 2.8K 120Hz, Intel Core Ultra 7, 32GB LPDDR5X, 1TB SSD.</p>
+                <div class="price">24.990.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-prod-1-view">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-prod-1-buy">Chọn mua</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Màn Hình Gaming 27" Fast-IPS</h3>
+                <p>Độ phân giải 2K QHD 240Hz, 1ms GtG, 99% sRGB, hỗ trợ G-Sync và FreeSync Premium Pro.</p>
+                <div class="price">7.890.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-prod-2-view">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-prod-2-buy">Chọn mua</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Bàn Phím Cơ Wireless RGB</h3>
+                <p>Custom switch Linear, mạch hotswap 5-pin, foam cách âm 4 lớp cao cấp.</p>
+                <div class="price">1.850.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-prod-3-view">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-prod-3-buy">Chọn mua</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Chuột Công Thái Học Không Dây</h3>
+                <p>Cảm biến quang 26,000 DPI, trọng lượng siêu nhẹ 54g, switch quang học 90 triệu lần bấm.</p>
+                <div class="price">1.250.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-prod-4-view">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-prod-4-buy">Chọn mua</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Tai Nghe Chống Ồn ANC Gen 2</h3>
+                <p>Khử tiếng ồn chủ động thích ứng, codec LDAC, micro AI lọc tạp âm đàm thoại.</p>
+                <div class="price">3.200.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-prod-5-view">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-prod-5-buy">Chọn mua</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Ổ Cứng Di Động SSD 1TB Type-C</h3>
+                <p>Tốc độ đọc ghi lên tới 2,000 MB/s, vỏ nhôm nguyên khối chống sốc chuẩn quân sự.</p>
+                <div class="price">2.100.000 đ</div>
+                <div style="display:flex; gap:0.5rem;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-prod-6-view">Xem chi tiết</a>
+                    <button class="btn btn-dark" data-track-click data-track-id="btn-prod-6-buy">Chọn mua</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Alpha Store Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_a_alpha_shop_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Sản Phẩm!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Ký & Tải Hồ Sơ Năng Lực - Beta Services</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --secondary: #1e1b4b;
+            --accent: #6366f1;
+        }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            margin: 1.2rem 0;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #6366f1;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🚀 Beta Services <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website B)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="services.html">Dịch vụ</a></li>
+            <li><a href="service-detail.html">Chi tiết DV</a></li>
+            <li><a href="register.html" class="active">Đăng ký & Hồ sơ</a></li>
+            <li><a href="confirmation.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge" style="background:#eef2ff; border-color:#c7d2fe; color:#3730a3;">
+            <span class="dot" style="background:#6366f1;"></span>
+            <span>Tracking Beta Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:2.5rem; align-items:start;">
+            <!-- Cột 1: Tải Hồ Sơ Năng Lực (Kích hoạt Funnel download_start -> download_complete) -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; box-shadow:var(--shadow);">
+                <div style="font-size:3rem; margin-bottom:0.5rem;">📑</div>
+                <h2 style="font-size:1.4rem; margin-bottom:0.5rem; color:var(--secondary);">Tải Hồ Sơ Năng Lực 2026</h2>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">
+                    Bản tóm lược năng lực kỹ thuật, chứng chỉ bảo mật và danh sách dự án tiêu biểu của Beta Services.
+                </p>
+
+                <button id="btn-download-profile" class="btn" style="background:#6366f1; width:100%;">
+                    📥 Tải Ngay Hồ Sơ Năng Lực (PDF)
+                </button>
+
+                <div id="progress-container" class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+
+                <div id="download-status" style="margin-top:0.8rem; font-size:0.85rem; font-weight:600; color:var(--text-muted); text-align:center;">
+                    Bấm nút trên để bắt đầu chuỗi tải tài liệu
+                </div>
+            </div>
+
+            <!-- Cột 2: Form Đăng Ký Tư Vấn (Kích hoạt button_click) -->
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; box-shadow:var(--shadow);">
+                <h2 style="font-size:1.4rem; margin-bottom:0.5rem; color:var(--secondary);">Đăng Ký Tư Vấn Doanh Nghiệp</h2>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">
+                    Để lại thông tin để chuyên gia của chúng tôi liên hệ hỗ trợ trong vòng 24 giờ làm việc.
+                </p>
+
+                <form id="register-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="txtCompany">Tên Doanh Nghiệp</label>
+                        <input type="text" id="txtCompany" class="form-control" placeholder="Công ty Cổ phần ABC">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="txtService">Dịch vụ quan tâm</label>
+                        <select id="txtService" class="form-control">
+                            <option>Cloud Migration & Kubernetes</option>
+                            <option>Security Audit & Pentest</option>
+                            <option>Data Pipeline & Analytics</option>
+                        </select>
+                    </div>
+
+                    <button type="button" id="btn-submit-register" class="btn btn-dark" style="width:100%;" data-track-click data-track-id="btn-submit-register-service">
+                        🚀 Gửi Yêu Cầu Tư Vấn
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Beta Services Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_b_beta_portal_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking Beta:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Đăng Ký Website B!');
+
+            // Xử lý download funnel
+            var btnDl = document.getElementById('btn-download-profile');
+            var pBar = document.getElementById('progress-container');
+            var pFill = document.getElementById('progress-fill');
+            var statusText = document.getElementById('download-status');
+
+            btnDl.addEventListener('click', function() {
+                btnDl.disabled = true;
+                pBar.style.display = 'block';
+                pFill.style.width = '25%';
+                statusText.innerText = 'Đang gửi download_start...';
+
+                window.WebTracker.trackDownload('company-profile.pdf', 'Beta-Services-Profile-2026.pdf', function(err, res) {
+                    if (err) {
+                        statusText.innerText = '❌ Lỗi tải: ' + err.message;
+                        btnDl.disabled = false;
+                    } else {
+                        pFill.style.width = '100%';
+                        statusText.innerText = '✅ Hoàn tất! Đã lưu download_complete vào CSDL.';
+                        statusText.style.color = '#10b981';
+                        btnDl.disabled = false;
+                        showToast('Hoàn tất Funnel Website B: <b>download_complete</b>!');
+                        setTimeout(function() {
+                            window.location.href = 'confirmation.html';
+                        }, 2200);
+                    }
+                });
+                showToast('Đã gửi sự kiện <b>download_start</b>!');
+            });
+
+            // Xử lý nút đăng ký tư vấn
+            var btnReg = document.getElementById('btn-submit-register');
+            btnReg.addEventListener('click', function() {
+                showToast('Đã ghi nhận <b>button_click</b>: btn-submit-register-service');
+                setTimeout(function() {
+                    window.location.href = 'confirmation.html';
+                }, 1200);
+            });
+        });
+    </script>
+</body>
+</html>

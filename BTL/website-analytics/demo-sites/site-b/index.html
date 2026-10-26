@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - Beta Services Portal (Website B)</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --secondary: #1e1b4b;
+            --accent: #6366f1;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🚀 Beta Services <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website B)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Trang chủ</a></li>
+            <li><a href="about.html">Giới thiệu</a></li>
+            <li><a href="services.html">Dịch vụ</a></li>
+            <li><a href="service-detail.html">Chi tiết DV</a></li>
+            <li><a href="register.html">Đăng ký & Hồ sơ</a></li>
+            <li><a href="confirmation.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge" style="background:#eef2ff; border-color:#c7d2fe; color:#3730a3;">
+            <span class="dot" style="background:#6366f1;"></span>
+            <span>Tracking Beta Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);">
+            <h1>Cổng Giải Pháp & Dịch Vụ Công Nghệ Beta Services</h1>
+            <p>Đối tác tin cậy về chuyển đổi số, điện toán đám mây và bảo mật doanh nghiệp. Dữ liệu truy cập và tương tác được đo lường tách biệt hoàn toàn với Website A.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="services.html" class="btn btn-outline" data-track-click data-track-id="btn-beta-explore-services">Xem Dịch Vụ</a>
+                <a href="register.html" class="btn" style="background:#6366f1;" data-track-click data-track-id="btn-beta-hero-register">Đăng Ký Tư Vấn</a>
+            </div>
+        </section>
+
+        <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Giải Pháp Tiêu Biểu</h2>
+        <div class="card-grid">
+            <div class="card">
+                <h3>Tư Vấn Kiến Trúc Cloud & DevOps</h3>
+                <p>Thiết kế hệ thống chịu tải cao, tối ưu hóa chi phí AWS/Azure/GCP và xây dựng pipeline CI/CD tự động.</p>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <a href="service-detail.html" class="btn" data-track-click data-track-id="btn-svc-1-detail">Khám phá</a>
+                    <a href="register.html" class="btn btn-dark" data-track-click data-track-id="btn-svc-1-contact">Tư vấn ngay</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Bảo Mật & Kiểm Thử Xâm Nhập (Pentest)</h3>
+                <p>Đánh giá lỗ hổng bảo mật toàn diện cho Web App, API và hạ tầng mạng theo tiêu chuẩn OWASP Top 10.</p>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <a href="service-detail.html" class="btn" data-track-click data-track-id="btn-svc-2-detail">Khám phá</a>
+                    <a href="register.html" class="btn btn-dark" data-track-click data-track-id="btn-svc-2-contact">Tư vấn ngay</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Phát Triển Phần Mềm Mã Nguồn Mở</h3>
+                <p>Tùy biến và tích hợp các giải pháp nguồn mở hàng đầu, bảo đảm quyền kiểm soát dữ liệu và tuân thủ giấy phép.</p>
+                <div style="display:flex; gap:0.5rem; margin-top:1rem;">
+                    <a href="service-detail.html" class="btn" data-track-click data-track-id="btn-svc-3-detail">Khám phá</a>
+                    <a href="register.html" class="btn btn-dark" data-track-click data-track-id="btn-svc-3-contact">Tư vấn ngay</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Beta Services Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <!-- SDK TÍCH HỢP VỚI TRACKING KEY CỦA WEBSITE B -->
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_b_beta_portal_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking Beta:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Website B!');
+            document.addEventListener('click', function(e) {
+                var btn = e.target.closest('[data-track-click]');
+                if (btn) showToast('Đã ghi nhận <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+            });
+        });
+    </script>
+</body>
+</html>

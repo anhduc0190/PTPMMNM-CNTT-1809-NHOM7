@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên Hệ & Hỗ Trợ - Alpha Store</title>
+    <link rel="stylesheet" href="../demo.css">
+    <style>
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; }
+        .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <a href="index.html" class="brand">🛒 Alpha Store <span style="font-size:0.75rem; color:#64748b; font-weight:normal;">(Website A)</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Trang chủ</a></li>
+            <li><a href="products.html">Sản phẩm</a></li>
+            <li><a href="product-detail.html">Chi tiết SP</a></li>
+            <li><a href="download.html">Tải Catalog</a></li>
+            <li><a href="contact.html" class="active">Liên hệ</a></li>
+            <li><a href="thank-you.html">Xác nhận</a></li>
+        </ul>
+        <div class="tracking-badge">
+            <span class="dot"></span>
+            <span>Tracking Active</span>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="max-width: 640px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; box-shadow: var(--shadow);">
+            <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--secondary);">Gửi Tin Nhắn Liên Hệ</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.8rem;">
+                Mọi thắc mắc về sản phẩm hoặc hợp tác phân phối xin vui lòng để lại thông tin. Hệ thống Analytics chỉ ghi nhận thao tác bấm nút, <b>tuyệt đối không thu thập nội dung nhập liệu hoặc thông tin cá nhân</b>.
+            </p>
+
+            <form id="contact-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="txtName">Họ và Tên</label>
+                    <input type="text" id="txtName" class="form-control" placeholder="Nguyễn Văn A">
+                </div>
+
+                <div class="form-group">
+                    <label for="txtEmail">Địa chỉ Email</label>
+                    <input type="email" id="txtEmail" class="form-control" placeholder="name@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="txtMessage">Nội dung liên hệ</label>
+                    <textarea id="txtMessage" class="form-control" rows="4" placeholder="Nhập nội dung cần hỗ trợ..."></textarea>
+                </div>
+
+                <button type="button" id="btn-submit-contact" class="btn btn-accent" style="width: 100%;" data-track-click data-track-id="btn-submit-contact">
+                    ✉️ Gửi Tin Nhắn Liên Hệ
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <div id="event-toast" class="event-toast"></div>
+
+    <footer>
+        <p>&copy; 2026 Alpha Store Demo - Đề tài 17: Hệ thống Thống Kê Lượt Truy Cập và Thao Tác Website</p>
+    </footer>
+
+    <script src="../../sdk/tracker.js" 
+            data-tracking-key="trk_site_a_alpha_shop_2026" 
+            data-api-endpoint="../../api/track.php">
+    </script>
+    <script>
+        window.addEventListener('load', function() {
+            var toast = document.getElementById('event-toast');
+            function showToast(msg) {
+                toast.innerHTML = '⚡ <b>Tracking:</b> ' + msg;
+                toast.classList.add('show');
+                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+            }
+            showToast('Đã ghi nhận <b>page_view</b> cho Trang Liên Hệ!');
+
+            var btn = document.getElementById('btn-submit-contact');
+            btn.addEventListener('click', function() {
+                showToast('Đã ghi nhận sự kiện <b>button_click</b>: btn-submit-contact');
+                setTimeout(function() {
+                    window.location.href = 'thank-you.html';
+                }, 1200);
+            });
+        });
+    </script>
+</body>
+</html>

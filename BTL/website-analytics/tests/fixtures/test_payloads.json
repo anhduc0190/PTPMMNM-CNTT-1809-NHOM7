@@ -1,0 +1,40 @@
+{
+  "valid_page_view": {
+    "tracking_key": "trk_site_a_alpha_shop_2026",
+    "event_id": "evt_unit_test_001",
+    "session_id": "sess_unit_test_001",
+    "event_name": "page_view",
+    "page_path": "/index.html",
+    "occurred_at": "2026-10-26T10:00:00Z",
+    "properties": {
+      "screen_width": 1920,
+      "screen_height": 1080
+    }
+  },
+  "valid_button_click": {
+    "tracking_key": "trk_site_a_alpha_shop_2026",
+    "event_id": "evt_unit_test_002",
+    "session_id": "sess_unit_test_001",
+    "event_name": "button_click",
+    "page_path": "/products.html",
+    "occurred_at": "2026-10-26T10:01:00Z",
+    "properties": {
+      "element_id": "btn-buy",
+      "button_text": "Mua ngay"
+    }
+  },
+  "forbidden_field_payload": {
+    "tracking_key": "trk_site_a_alpha_shop_2026",
+    "event_id": "evt_unit_test_003",
+    "session_id": "sess_unit_test_001",
+    "event_name": "button_click",
+    "page_path": "/contact.html",
+    "occurred_at": "2026-10-26T10:02:00Z",
+    "properties": {
+      "password_raw": "secret123",
+      "input_message": "Hello World",
+      "credit_card": "4111222233334444",
+      "button_text": "Gửi tin nhắn"
+    }
+  }
+}

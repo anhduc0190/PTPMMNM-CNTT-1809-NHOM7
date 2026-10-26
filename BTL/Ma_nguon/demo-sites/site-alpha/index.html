@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alpha Shop — Website Thử 1</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f8f9fa; color: #1a1a2e; }
+    header {
+      background: #16213e; color: #eee; padding: 16px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    header h1 { font-size: 1.3rem; }
+    nav a { color: #a8dadc; text-decoration: none; margin-left: 16px; font-size: .9rem; }
+    .hero {
+      background: linear-gradient(135deg, #16213e, #0f3460);
+      color: white; text-align: center; padding: 64px 24px;
+    }
+    .hero h2 { font-size: 2rem; margin-bottom: 12px; }
+    .hero p  { color: #a8dadc; margin-bottom: 24px; }
+    .btn {
+      display: inline-block; padding: 12px 28px; border-radius: 8px;
+      font-weight: 600; cursor: pointer; border: none; font-size: 1rem;
+      text-decoration: none; margin: 8px;
+    }
+    .btn-primary { background: #e94560; color: white; }
+    .btn-outline { background: transparent; color: white; border: 2px solid #a8dadc; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+    .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .product {
+      background: white; border-radius: 12px; padding: 20px; text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    .product h3 { margin: 12px 0 8px; }
+    .product p  { color: #666; font-size: .88rem; margin-bottom: 16px; }
+    .price { font-size: 1.4rem; font-weight: 700; color: #e94560; }
+    footer { background: #16213e; color: #888; text-align: center; padding: 20px; font-size: .85rem; }
+    .notice {
+      background: #fffbea; border: 1px solid #f59e0b; border-radius: 8px;
+      padding: 12px 16px; margin-bottom: 24px; font-size: .85rem; color: #92400e;
+    }
+    .contact-form { background: white; border-radius: 12px; padding: 32px; margin-top: 32px; max-width: 480px; }
+    .contact-form h3 { margin-bottom: 16px; }
+    .contact-form input, .contact-form textarea {
+      width: 100%; border: 1px solid #ddd; border-radius: 8px;
+      padding: 10px 14px; margin-bottom: 12px; font-size: .9rem; font-family: inherit;
+    }
+    textarea { height: 100px; resize: vertical; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛍 Alpha Shop</h1>
+    <nav>
+      <a href="/home">Trang chủ</a>
+      <a href="/products">Sản phẩm</a>
+      <a href="/about">Giới thiệu</a>
+      <a href="/contact">Liên hệ</a>
+      <a href="/pricing">Giá cả</a>
+      <a href="/download">Tải tài liệu</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h2>Chào mừng đến Alpha Shop</h2>
+    <p>Website thử nghiệm theo dõi lượt truy cập và thao tác người dùng</p>
+    <a href="#products" class="btn btn-primary">Xem sản phẩm</a>
+    <button id="btn-download" class="btn btn-outline" data-wa-event="click" data-wa-target="#btn-download">
+      ⬇ Tải tài liệu
+    </button>
+  </div>
+
+  <div class="container">
+    <div class="notice">
+      ⚠️ <strong>Thông báo:</strong> Website này đang được theo dõi lượt truy cập và thao tác
+      phục vụ mục đích nghiên cứu học thuật. Không thu thập nội dung nhập liệu cá nhân.
+    </div>
+
+    <h2 id="products" style="margin-bottom:20px">Sản phẩm nổi bật</h2>
+    <div class="products">
+      <div class="product">
+        <div style="font-size:2.5rem">📦</div>
+        <h3>Gói Cơ bản</h3>
+        <p>Phù hợp cho cá nhân và doanh nghiệp nhỏ</p>
+        <div class="price">299.000đ</div>
+        <button class="btn btn-primary" style="margin-top:12px;width:100%;font-size:.85rem"
+                id="btn-basic" data-wa-event="click" data-wa-target="#btn-basic">Chọn gói</button>
+      </div>
+      <div class="product">
+        <div style="font-size:2.5rem">🚀</div>
+        <h3>Gói Pro</h3>
+        <p>Đầy đủ tính năng cho doanh nghiệp vừa</p>
+        <div class="price">699.000đ</div>
+        <button class="btn btn-primary" style="margin-top:12px;width:100%;font-size:.85rem"
+                id="btn-pro" data-wa-event="click" data-wa-target="#btn-pro">Chọn gói</button>
+      </div>
+      <div class="product">
+        <div style="font-size:2.5rem">🏢</div>
+        <h3>Gói Enterprise</h3>
+        <p>Giải pháp toàn diện cho tập đoàn lớn</p>
+        <div class="price">Liên hệ</div>
+        <button class="btn btn-primary" style="margin-top:12px;width:100%;font-size:.85rem"
+                id="btn-enterprise" data-wa-event="click" data-wa-target="#btn-enterprise">Liên hệ</button>
+      </div>
+    </div>
+
+    <!-- Form liên hệ — không thu thập nội dung nhập liệu -->
+    <div class="contact-form">
+      <h3>📬 Liên hệ với chúng tôi</h3>
+      <p style="font-size:.82rem;color:#666;margin-bottom:16px">
+        Chỉ ghi nhận việc gửi form, không ghi nội dung bạn nhập.
+      </p>
+      <form id="form-contact" data-wa-event="form_submit">
+        <input type="text"  placeholder="Họ và tên (không được ghi nhận)">
+        <input type="email" placeholder="Email (không được ghi nhận)">
+        <textarea placeholder="Nội dung tin nhắn (không được ghi nhận)"></textarea>
+        <button type="submit" class="btn btn-primary" style="width:100%">Gửi liên hệ</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>Alpha Shop — Website thử nghiệm học thuật | Theo dõi: chỉ lượt truy cập và thao tác, không có nội dung nhập liệu</p>
+  </footer>
+
+  <!-- Tracker tương thích cả XAMPP localhost (Port 80) và Built-in PHP (Port 8200) -->
+  <script>
+    var isXampp = window.location.port === '' || window.location.port === '80';
+    var trackerSrc = isXampp ? '/web-analytics/public/assets/js/tracker.js' : 'http://127.0.0.1:8200/assets/js/tracker.js';
+    var collectEndpoint = isXampp ? '/web-analytics/public/collect.php' : 'http://127.0.0.1:8200/collect.php';
+    document.write('<script src="' + trackerSrc + '"><\/script>');
+  </script>
+  <script>
+    // API key của Website 1 (Alpha Shop)
+    var waApiKey = window.WA_API_KEY || 'dd44a8ced80e24265bff70e42a7bdfdd32dbf0264cadf77a1446e07d4ac3692d';
+    if (typeof WA !== 'undefined') {
+      WA.init({
+        apiKey:       waApiKey,
+        collectUrl:   collectEndpoint,
+        sessionToken: localStorage.getItem('wa_session') || WA.newSession(),
+      });
+    }
+  </script>
+</body>
+</html>
