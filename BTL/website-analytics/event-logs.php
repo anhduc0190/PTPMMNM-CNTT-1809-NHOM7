@@ -36,7 +36,7 @@ if (!empty($filterPage)) {
     $eventsSql .= ' AND `page_path` LIKE ?';
     $params[] = '%' . $filterPage . '%';
 }
-$eventsSql .= ' ORDER BY `occurred_at` DESC, `event_row_id` DESC LIMIT 100';
+$eventsSql .= ' ORDER BY `event_row_id` DESC, `occurred_at` DESC LIMIT 100';
 
 $stmtEvents = $pdo->prepare($eventsSql);
 $stmtEvents->execute($params);

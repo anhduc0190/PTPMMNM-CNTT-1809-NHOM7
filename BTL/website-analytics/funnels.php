@@ -84,19 +84,34 @@ foreach ($sessionGroups as $sessId => $sEvents) {
         $status = 'Bỏ dở sau Bước 2 (Chưa tải xong)';
         $statusClass = 'badge-yellow';
     }
+    $firstTime = null;
+    $latestTime = null;
+    foreach ($sEvents as $e) {
+        $t = strtotime($e['occurred_at']);
+        if ($firstTime === null || $t < $firstTime) $firstTime = $t;
+        if ($latestTime === null || $t > $latestTime) $latestTime = $t;
+    }
+    $durationSec = ($latestTime && $firstTime) ? ($latestTime - $firstTime) : 0;
 
     $sessionRecords[] = [
-        'session_id' => $sessId,
-        'has_step1'  => $has1,
-        'has_step2'  => $has2,
-        'has_step3'  => $has3,
-        't1'         => $t1,
-        't2'         => $t2,
-        't3'         => $t3,
-        'status'     => $status,
-        'badge'      => $statusClass
+        'session_id'   => $sessId,
+        'has_step1'    => $has1,
+        'has_step2'    => $has2,
+        'has_step3'    => $has3,
+        't1'           => $t1,
+        't2'           => $t2,
+        't3'           => $t3,
+        'latest_time'  => $latestTime,
+        'duration_sec' => $durationSec,
+        'status'       => $status,
+        'badge'        => $statusClass
     ];
 }
+
+// Sắp xếp các phiên có tương tác mới nhất lên ĐẦU TIÊN (Row #1)
+usort($sessionRecords, function($a, $b) {
+    return ($b['latest_time'] ?? 0) <=> ($a['latest_time'] ?? 0);
+});
 
 $convRate = $step1Sessions > 0 ? round(($step3Sessions / $step1Sessions) * 100, 2) : 0;
 $step2Pct = $step1Sessions > 0 ? round(($step2Sessions / $step1Sessions) * 100, 1) : 0;
@@ -224,6 +239,7 @@ $step3Pct = $step2Sessions > 0 ? round(($step3Sessions / $step2Sessions) * 100, 
             <thead>
                 <tr>
                     <th>Session ID (Phiên)</th>
+                    <th>Thời Lượng Phiên</th>
                     <th>Bước 1 (page_view)</th>
                     <th>Bước 2 (download_start)</th>
                     <th>Bước 3 (download_complete)</th>
@@ -236,6 +252,12 @@ $step3Pct = $step2Sessions > 0 ? round(($step3Sessions / $step2Sessions) * 100, 
                         <td title="<?= e($sr['session_id']) ?>">
                             <span style="font-family:monospace; font-size:0.8rem; font-weight:600;">
                                 <?= substr(e($sr['session_id']), 0, 18) ?>...
+                            </span>
+                        </td>
+                        <td>
+                            <span style="font-weight:600; color:var(--text-secondary); font-size:0.82rem;">
+                                <?= render_icon('clock', '', 12, 'var(--text-muted)') ?>
+                                <?= $sr['duration_sec'] >= 60 ? (floor($sr['duration_sec'] / 60) . 'm ' . ($sr['duration_sec'] % 60) . 's') : ($sr['duration_sec'] . 's') ?>
                             </span>
                         </td>
                         <td>
@@ -284,7 +306,7 @@ $step3Pct = $step2Sessions > 0 ? round(($step3Sessions / $step2Sessions) * 100, 
                 <?php endforeach; ?>
                 <?php if (empty($sessionRecords)): ?>
                     <tr>
-                        <td colspan="5" style="text-align:center; color:var(--text-muted); padding:2.5rem;">
+                        <td colspan="6" style="text-align:center; color:var(--text-muted); padding:2.5rem;">
                             Chưa có phiên nào có sự kiện thuộc chuỗi funnel trong kỳ báo cáo đã chọn
                         </td>
                     </tr>

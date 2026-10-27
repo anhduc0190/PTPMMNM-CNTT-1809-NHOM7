@@ -66,6 +66,46 @@ foreach ($dailyRows as $dr) {
     $dViews[]   = (int)$dr['views'];
     $dActions[] = (int)$dr['actions'];
 }
+
+// 4. Thống kê lượng tương tác theo 24 khung giờ trong ngày (Hourly interaction traffic)
+$stmtHourly = $pdo->prepare('
+    SELECT 
+        HOUR(`occurred_at`) AS `hr`,
+        SUM(CASE WHEN `event_name` = "page_view" THEN 1 ELSE 0 END) AS `views`,
+        SUM(CASE WHEN `event_name` != "page_view" THEN 1 ELSE 0 END) AS `actions`,
+        COUNT(DISTINCT `session_id`) AS `sessions`,
+        COUNT(*) AS `total`
+    FROM `events`
+    WHERE `website_id` = ? AND `occurred_at` BETWEEN ? AND ?
+    GROUP BY `hr`
+    ORDER BY `hr` ASC
+');
+$stmtHourly->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
+$hourlyRows = $stmtHourly->fetchAll();
+
+$hourMap = [];
+$peakHour = 0;
+$peakCount = 0;
+$totalHourlyEvents = 0;
+foreach ($hourlyRows as $hr) {
+    $h = (int)$hr['hr'];
+    $hourMap[$h] = $hr;
+    $cnt = (int)$hr['total'];
+    $totalHourlyEvents += $cnt;
+    if ($cnt > $peakCount) {
+        $peakCount = $cnt;
+        $peakHour = $h;
+    }
+}
+
+$hLabels  = [];
+$hViews   = [];
+$hActions = [];
+for ($i = 0; $i < 24; $i++) {
+    $hLabels[]  = sprintf('%02dh', $i);
+    $hViews[]   = isset($hourMap[$i]) ? (int)$hourMap[$i]['views'] : 0;
+    $hActions[] = isset($hourMap[$i]) ? (int)$hourMap[$i]['actions'] : 0;
+}
 ?>
 
 <!-- PHÂN BỔ LOẠI SỰ KIỆN -->
@@ -75,9 +115,9 @@ foreach ($dailyRows as $dr) {
             <?= render_icon('chart-bar', '', 18, 'var(--primary)') ?>
             Phân Bổ Các Loại Sự Kiện Trong Kỳ Báo Cáo
         </h3>
-        <a href="<?= $baseUrl ?>/api/analytics-export.php?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>" class="btn btn-outline btn-sm">
+        <a href="<?= $baseUrl ?>/api/analytics-export.php?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>" class="btn-export-csv" title="Xuất toàn bộ dữ liệu ra file CSV">
             <?= render_icon('download', '', 14) ?>
-            Xuất Toàn Bộ Dữ Liệu Nguồn Ra CSV
+            <span>Xuất Toàn Bộ Dữ Liệu Ra CSV</span>
         </a>
     </div>
 
@@ -87,18 +127,21 @@ foreach ($dailyRows as $dr) {
             $icon = 'activity';
             $wrapClass = 'blue';
             if ($eb['event_name'] === 'page_view') { $icon = 'eye'; $wrapClass = 'blue'; }
-            elseif ($eb['event_name'] === 'button_click') { $icon = 'zap'; $wrapClass = 'green'; }
-            elseif ($eb['event_name'] === 'download_start') { $icon = 'download'; $wrapClass = 'yellow'; }
+            elseif ($eb['event_name'] === 'button_click') { $icon = 'mouse-pointer-click'; $wrapClass = 'green'; }
+            elseif ($eb['event_name'] === 'download_start') { $icon = 'download'; $wrapClass = 'orange'; }
             elseif ($eb['event_name'] === 'download_complete') { $icon = 'check-circle'; $wrapClass = 'purple'; }
             ?>
             <div class="kpi-card">
-                <div class="kpi-header">
-                    <span class="kpi-title"><?= e($eb['event_name']) ?></span>
-                    <span class="kpi-icon-wrap <?= $wrapClass ?>">
-                        <?= render_icon($icon, '', 17) ?>
+                <div class="kpi-top-row">
+                    <div class="kpi-icon-box <?= $wrapClass ?>">
+                        <?= render_icon($icon, '', 20) ?>
+                    </div>
+                    <span class="badge badge-<?= $wrapClass ?>">
+                        <?= e($eb['event_name']) ?>
                     </span>
                 </div>
                 <div class="kpi-value"><?= number_format((int)$eb['total_events']) ?></div>
+                <div class="kpi-title"><?= e($eb['event_name']) ?></div>
                 <div class="kpi-sub">Trong <?= number_format((int)$eb['unique_sessions']) ?> phiên truy cập</div>
             </div>
         <?php endforeach; ?>
@@ -112,16 +155,56 @@ foreach ($dailyRows as $dr) {
     </div>
 </div>
 
+<!-- BÁO CÁO PHÂN BỔ TƯƠNG TÁC THEO 24 KHUNG GIỜ TRONG NGÀY -->
+<div class="card-section">
+    <div class="card-title-bar">
+        <div>
+            <h3>
+                <?= render_icon('clock', '', 18, 'var(--primary)') ?>
+                Phân Bổ Lượng Tương Tác Theo Khung Giờ (24 Khung Giờ Trong Ngày)
+            </h3>
+            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:2px;">
+                Theo dõi thời điểm tương tác, giờ cao điểm và lượng thao tác tăng dần theo từng giờ
+            </div>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <span class="badge badge-blue">
+                <?= render_icon('zap', '', 11) ?>
+                Giờ cao điểm: <strong><?= sprintf('%02d:00 - %02d:00', $peakHour, ($peakHour + 1) % 24) ?></strong> (<?= number_format($peakCount) ?> tương tác)
+            </span>
+            <span class="badge badge-green">
+                <?= render_icon('radio', '', 11) ?>
+                Khung giờ hiện tại: <strong><?= date('H:00') ?></strong>
+            </span>
+        </div>
+    </div>
+
+    <div class="chart-sub-legend" style="margin-bottom:0.85rem;">
+        <div class="legend-item">
+            <span class="dot-blue"></span>
+            <span>Lượt xem trang (page_view)</span>
+        </div>
+        <div class="legend-item">
+            <span class="dot-green"></span>
+            <span>Lần thao tác (actions)</span>
+        </div>
+    </div>
+
+    <div style="height: 280px; position:relative;">
+        <canvas id="hourlyReportChart"></canvas>
+    </div>
+</div>
+
 <!-- BIỂU ĐỒ THEO NGÀY -->
 <div class="card-section">
     <div class="card-title-bar">
         <h3>
-            <?= render_icon('calendar', '', 18, 'var(--accent-blue)') ?>
-            Lượt Xem & Thao Tác Phân Bổ Theo Ngày Báo Cáo
+            <?= render_icon('calendar', '', 18, 'var(--primary)') ?>
+            Lượt Xem &amp; Thao Tác Phân Bổ Theo Ngày Báo Cáo
         </h3>
         <span class="badge badge-gray">
             <?= render_icon('activity', '', 12) ?>
-            Dữ liệu tổng hợp
+            Dữ liệu tổng hợp theo ngày
         </span>
     </div>
     <div style="height: 280px; position:relative;">
@@ -186,6 +269,57 @@ foreach ($dailyRows as $dr) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 1. Biểu đồ 24 khung giờ trong ngày (Hourly interaction chart)
+    const ctxHourly = document.getElementById('hourlyReportChart').getContext('2d');
+    new Chart(ctxHourly, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($hLabels) ?>,
+            datasets: [
+                {
+                    label: 'Lượt xem trang (page_view)',
+                    data: <?= json_encode($hViews) ?>,
+                    backgroundColor: '#2563eb',
+                    borderRadius: 4,
+                    barPercentage: 0.65
+                },
+                {
+                    label: 'Lần thao tác (actions)',
+                    data: <?= json_encode($hActions) ?>,
+                    backgroundColor: '#10b981',
+                    borderRadius: 4,
+                    barPercentage: 0.65
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleColor: '#ffffff',
+                    bodyColor: '#f1f5f9',
+                    cornerRadius: 6,
+                    padding: 8
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                    grid: { color: 'rgba(232, 237, 245, 0.9)' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { maxRotation: 0, autoSkip: false, font: { size: 10 } }
+                }
+            }
+        }
+    });
+
+    // 2. Biểu đồ tổng hợp theo ngày (Daily report chart)
     const ctx = document.getElementById('dailyReportChart').getContext('2d');
     new Chart(ctx, {
         type: 'bar',
@@ -195,16 +329,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 {
                     label: 'Lượt xem trang (page_view)',
                     data: <?= json_encode(!empty($dViews) ? $dViews : [0]) ?>,
-                    backgroundColor: '#3b82f6',
+                    backgroundColor: '#2563eb',
                     borderRadius: 4,
-                    barPercentage: 0.7
+                    barPercentage: 0.6
                 },
                 {
                     label: 'Lần thao tác (actions)',
                     data: <?= json_encode(!empty($dActions) ? $dActions : [0]) ?>,
                     backgroundColor: '#10b981',
                     borderRadius: 4,
-                    barPercentage: 0.7
+                    barPercentage: 0.6
                 }
             ]
         },
@@ -234,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 y: {
                     beginAtZero: true,
                     ticks: { precision: 0 },
-                    grid: { color: 'rgba(226, 232, 240, 0.8)' }
+                    grid: { color: 'rgba(232, 237, 245, 0.9)' }
                 },
                 x: {
                     grid: { display: false }

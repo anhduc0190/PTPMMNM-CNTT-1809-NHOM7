@@ -82,37 +82,63 @@ if ($ingestErrors > 0) {
     $growthErr['color'] = 'red';
 }
 
-// 2. Lấy dữ liệu biểu đồ theo ngày
-$stmtTraffic = $pdo->prepare('
-    SELECT 
-        DATE(`occurred_at`) AS `r_date`,
-        SUM(CASE WHEN `event_name` = "page_view" THEN 1 ELSE 0 END) AS `views`,
-        SUM(CASE WHEN `event_name` != "page_view" THEN 1 ELSE 0 END) AS `actions`
-    FROM `events`
-    WHERE `website_id` = ? AND `occurred_at` BETWEEN ? AND ?
-    GROUP BY DATE(`occurred_at`)
-    ORDER BY `r_date` ASC
-');
-$stmtTraffic->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
-$trafficRows = $stmtTraffic->fetchAll();
-
-$trafficMap = [];
-foreach ($trafficRows as $tr) {
-    $trafficMap[$tr['r_date']] = $tr;
-}
-
+// 2. Lấy dữ liệu biểu đồ theo Ngày hoặc 24 Khung Giờ Hôm Nay
+$viewMode = $_GET['view_mode'] ?? 'daily';
 $chartLabels  = [];
 $chartViews   = [];
 $chartActions = [];
 
-$cur = strtotime($fromDate);
-$end = strtotime($toDate);
-while ($cur <= $end) {
-    $d = date('Y-m-d', $cur);
-    $chartLabels[]  = date('d/m', $cur);
-    $chartViews[]   = isset($trafficMap[$d]) ? (int)$trafficMap[$d]['views'] : 0;
-    $chartActions[] = isset($trafficMap[$d]) ? (int)$trafficMap[$d]['actions'] : 0;
-    $cur = strtotime('+1 day', $cur);
+if ($viewMode === 'hourly') {
+    $todayDate = date('Y-m-d');
+    $stmtTraffic = $pdo->prepare('
+        SELECT 
+            HOUR(`occurred_at`) AS `hr`,
+            SUM(CASE WHEN `event_name` = "page_view" THEN 1 ELSE 0 END) AS `views`,
+            SUM(CASE WHEN `event_name` != "page_view" THEN 1 ELSE 0 END) AS `actions`
+        FROM `events`
+        WHERE `website_id` = ? AND DATE(`occurred_at`) = ?
+        GROUP BY `hr`
+        ORDER BY `hr` ASC
+    ');
+    $stmtTraffic->execute([$selectedWebsiteId, $todayDate]);
+    $hourlyTraffic = $stmtTraffic->fetchAll();
+    $hourMap = [];
+    foreach ($hourlyTraffic as $ht) {
+        $hourMap[(int)$ht['hr']] = $ht;
+    }
+    for ($i = 0; $i < 24; $i++) {
+        $chartLabels[]  = sprintf('%02dh', $i);
+        $chartViews[]   = isset($hourMap[$i]) ? (int)$hourMap[$i]['views'] : 0;
+        $chartActions[] = isset($hourMap[$i]) ? (int)$hourMap[$i]['actions'] : 0;
+    }
+} else {
+    $stmtTraffic = $pdo->prepare('
+        SELECT 
+            DATE(`occurred_at`) AS `r_date`,
+            SUM(CASE WHEN `event_name` = "page_view" THEN 1 ELSE 0 END) AS `views`,
+            SUM(CASE WHEN `event_name` != "page_view" THEN 1 ELSE 0 END) AS `actions`
+        FROM `events`
+        WHERE `website_id` = ? AND `occurred_at` BETWEEN ? AND ?
+        GROUP BY DATE(`occurred_at`)
+        ORDER BY `r_date` ASC
+    ');
+    $stmtTraffic->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
+    $trafficRows = $stmtTraffic->fetchAll();
+
+    $trafficMap = [];
+    foreach ($trafficRows as $tr) {
+        $trafficMap[$tr['r_date']] = $tr;
+    }
+
+    $cur = strtotime($fromDate);
+    $end = strtotime($toDate);
+    while ($cur <= $end) {
+        $d = date('Y-m-d', $cur);
+        $chartLabels[]  = date('d/m', $cur);
+        $chartViews[]   = isset($trafficMap[$d]) ? (int)$trafficMap[$d]['views'] : 0;
+        $chartActions[] = isset($trafficMap[$d]) ? (int)$trafficMap[$d]['actions'] : 0;
+        $cur = strtotime('+1 day', $cur);
+    }
 }
 
 // 3. Top 5 Trang phổ biến
@@ -134,12 +160,12 @@ foreach ($topPages as $tp) {
     }
 }
 
-// 4. Danh sách 10 sự kiện gần nhất
+// 4. Danh sách 10 sự kiện gần nhất (Sắp xếp theo event_row_id DESC để thao tác mới nhất luôn ở Row #1)
 $stmtRecent = $pdo->prepare('
     SELECT `event_row_id`, `event_id`, `session_id`, `event_name`, `page_path`, `occurred_at`, `payload_hash`
     FROM `events`
     WHERE `website_id` = ?
-    ORDER BY `occurred_at` DESC, `event_row_id` DESC
+    ORDER BY `event_row_id` DESC, `occurred_at` DESC
     LIMIT 10
 ');
 $stmtRecent->execute([$selectedWebsiteId]);
@@ -283,12 +309,13 @@ foreach ($distRows as $dr) {
                 <span style="color:#2563eb; display:inline-flex; align-items:center;">
                     <?= render_icon('chart-line', '', 18) ?>
                 </span>
-                Xu Hướng Lượt Xem &amp; Thao Tác Theo Ngày
+                <?= $viewMode === 'hourly' ? 'Xu Hướng Lượng Tương Tác Theo 24h Hôm Nay' : 'Xu Hướng Lượt Xem &amp; Thao Tác Theo Ngày' ?>
             </h3>
             <div class="period-pill-group">
-                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= date('Y-m-d', strtotime('-7 days')) ?>&to_date=<?= date('Y-m-d') ?>" class="period-pill <?= $dateDiff <= 8 ? 'active' : '' ?>">7 ngày</a>
-                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= date('Y-m-d', strtotime('-14 days')) ?>&to_date=<?= date('Y-m-d') ?>" class="period-pill <?= ($dateDiff > 8 && $dateDiff <= 16) ? 'active' : '' ?>">15 ngày</a>
-                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= date('Y-m-d', strtotime('-30 days')) ?>&to_date=<?= date('Y-m-d') ?>" class="period-pill <?= $dateDiff > 16 ? 'active' : '' ?>">30 ngày</a>
+                <a href="?website_id=<?= $selectedWebsiteId ?>&view_mode=hourly" class="period-pill <?= $viewMode === 'hourly' ? 'active' : '' ?>">24h Hôm Nay</a>
+                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= date('Y-m-d', strtotime('-7 days')) ?>&to_date=<?= date('Y-m-d') ?>" class="period-pill <?= ($viewMode !== 'hourly' && $dateDiff <= 8) ? 'active' : '' ?>">7 ngày</a>
+                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= date('Y-m-d', strtotime('-14 days')) ?>&to_date=<?= date('Y-m-d') ?>" class="period-pill <?= ($viewMode !== 'hourly' && $dateDiff > 8 && $dateDiff <= 16) ? 'active' : '' ?>">15 ngày</a>
+                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= date('Y-m-d', strtotime('-30 days')) ?>&to_date=<?= date('Y-m-d') ?>" class="period-pill <?= ($viewMode !== 'hourly' && $dateDiff > 16) ? 'active' : '' ?>">30 ngày</a>
             </div>
         </div>
 
@@ -394,8 +421,8 @@ foreach ($distRows as $dr) {
                         <?php foreach ($recentEvents as $row): ?>
                             <tr>
                                 <td><strong>#<?= (int)$row['event_row_id'] ?></strong></td>
-                                <td style="color:var(--text-secondary); font-size:0.8rem;">
-                                    <?= date('d/m/Y H:i:s', strtotime($row['occurred_at'])) ?>
+                                <td style="color:var(--text-secondary); font-size:0.8rem; white-space:nowrap;">
+                                    <?= date('H:i:s d/m/Y', strtotime($row['occurred_at'])) ?>
                                 </td>
                                 <td>
                                     <?php

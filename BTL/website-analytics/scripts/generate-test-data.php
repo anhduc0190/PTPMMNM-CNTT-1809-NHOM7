@@ -143,9 +143,9 @@ function run_test_data_generator(bool $silent = false): array {
     // 1. 15 Sessions hoan tat chuoi: page_view -> download_start -> download_complete (45 events)
     for ($i = 1; $i <= 15; $i++) {
         $sess = "sess_a_funnel_comp_{$i}";
-        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 09:00:00 + {$i} minutes"));
-        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 30 seconds"));
-        $t3 = date('Y-m-d H:i:s', strtotime("{$t2} + 45 seconds"));
+        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 00:10:00 + " . ($i * 40) . " seconds"));
+        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 15 seconds"));
+        $t3 = date('Y-m-d H:i:s', strtotime("{$t2} + 20 seconds"));
 
         $processTrack([
             'tracking_key' => $siteAKey,
@@ -179,8 +179,8 @@ function run_test_data_generator(bool $silent = false): array {
     // 2. 10 Sessions bo do sau buoc 2: page_view -> download_start (20 events)
     for ($i = 1; $i <= 10; $i++) {
         $sess = "sess_a_funnel_drop_{$i}";
-        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 11:00:00 + {$i} minutes"));
-        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 20 seconds"));
+        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 00:25:00 + " . ($i * 30) . " seconds"));
+        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 15 seconds"));
 
         $processTrack([
             'tracking_key' => $siteAKey,
@@ -204,7 +204,7 @@ function run_test_data_generator(bool $silent = false): array {
     // 3. 15 Sessions xem trang chu, san pham va bam nut (45 events)
     for ($i = 1; $i <= 15; $i++) {
         $sess = "sess_a_browse_{$i}";
-        $t = date('Y-m-d H:i:s', strtotime("{$today} 14:00:00 + " . ($i * 2) . " minutes"));
+        $t = date('Y-m-d H:i:s', strtotime("{$today} 00:40:00 + " . ($i * 45) . " seconds"));
 
         $processTrack([
             'tracking_key' => $siteAKey,
@@ -264,9 +264,9 @@ function run_test_data_generator(bool $silent = false): array {
     // 1. 10 Sessions hoan tat chuoi: page_view -> download_start -> download_complete (30 events)
     for ($i = 1; $i <= 10; $i++) {
         $sess = "sess_b_funnel_comp_{$i}";
-        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 10:00:00 + {$i} minutes"));
-        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 25 seconds"));
-        $t3 = date('Y-m-d H:i:s', strtotime("{$t2} + 50 seconds"));
+        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 00:15:00 + " . ($i * 30) . " seconds"));
+        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 15 seconds"));
+        $t3 = date('Y-m-d H:i:s', strtotime("{$t2} + 20 seconds"));
 
         $processTrack([
             'tracking_key' => $siteBKey,
@@ -300,8 +300,8 @@ function run_test_data_generator(bool $silent = false): array {
     // 2. 5 Sessions bo do tai buoc 2 (10 events)
     for ($i = 1; $i <= 5; $i++) {
         $sess = "sess_b_drop_{$i}";
-        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 13:00:00 + {$i} minutes"));
-        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 30 seconds"));
+        $t1 = date('Y-m-d H:i:s', strtotime("{$today} 00:30:00 + " . ($i * 30) . " seconds"));
+        $t2 = date('Y-m-d H:i:s', strtotime("{$t1} + 15 seconds"));
 
         $processTrack([
             'tracking_key' => $siteBKey,
@@ -325,7 +325,7 @@ function run_test_data_generator(bool $silent = false): array {
     // 3. 10 Sessions xem trang dich vu va bam nut tu van (20 events)
     for ($i = 1; $i <= 10; $i++) {
         $sess = "sess_b_browse_{$i}";
-        $t = date('Y-m-d H:i:s', strtotime("{$today} 15:30:00 + " . ($i * 2) . " minutes"));
+        $t = date('Y-m-d H:i:s', strtotime("{$today} 00:45:00 + " . ($i * 30) . " seconds"));
 
         $processTrack([
             'tracking_key' => $siteBKey,
@@ -341,7 +341,7 @@ function run_test_data_generator(bool $silent = false): array {
             'session_id'   => $sess,
             'event_name'   => 'button_click',
             'page_path'    => '/services.html',
-            'occurred_at'  => date('Y-m-d H:i:s', strtotime("{$t} + 45 seconds")),
+            'occurred_at'  => date('Y-m-d H:i:s', strtotime("{$t} + 25 seconds")),
             'properties'   => ['element_id' => 'btn-svc-1-contact', 'button_text' => 'Tư vấn ngay']
         ]);
     }
@@ -412,8 +412,8 @@ function run_test_data_generator(bool $silent = false): array {
     // 7. 5 Sessions Funnel Sai Thu Tu (10 events: download_complete xay ra TRUOC download_start)
     for ($i = 1; $i <= 5; $i++) {
         $sess = "sess_funnel_inverted_{$i}";
-        $t = date('Y-m-d H:i:s', strtotime("{$today} 16:00:00 + {$i} minutes"));
-        $tBefore = date('Y-m-d H:i:s', strtotime("{$t} - 30 seconds"));
+        $t = date('Y-m-d H:i:s', strtotime("{$today} 00:55:00 + " . ($i * 30) . " seconds"));
+        $tBefore = date('Y-m-d H:i:s', strtotime("{$t} - 15 seconds"));
 
         // download_complete xay ra truoc
         $processTrack([
