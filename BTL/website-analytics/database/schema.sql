@@ -5,11 +5,15 @@
 -- Engine: InnoDB | Charset: utf8mb4 | Collation: utf8mb4_unicode_ci
 -- ====================================================================
 
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS `website_analytics`
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 USE `website_analytics`;
+SET NAMES utf8mb4;
 
 -- 1. BANG WEBSITES: Quan ly danh sach cac website duoc phep theo doi
 CREATE TABLE IF NOT EXISTS `websites` (

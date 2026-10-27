@@ -3,7 +3,11 @@
 -- Database: website_analytics
 -- ====================================================================
 
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 USE `website_analytics`;
+SET NAMES utf8mb4;
 
 -- 1. KHOI TAO WEBSITES MAU
 INSERT INTO `websites` (`website_id`, `name`, `domain`, `tracking_key`, `timezone`, `status`, `late_event_window_hours`, `created_at`)

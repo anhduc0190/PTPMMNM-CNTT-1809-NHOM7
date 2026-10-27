@@ -15,12 +15,27 @@ function is_authenticated(): bool {
 }
 
 /**
- * Tra ve thong tin user hien tai tu session
+ * Tra ve thong tin user hien tai tu session (tu dong dong bo ten moi nhat tu CSDL)
  */
 function get_auth_user(): ?array {
     if (!is_authenticated()) {
         return null;
     }
+
+    // Neu session chua co hoac bi loi phong chu chua '?', tu dong tai lai tu CSDL
+    if (empty($_SESSION['user_name']) || strpos($_SESSION['user_name'], '?') !== false) {
+        try {
+            $pdo = get_db_connection();
+            $stmt = $pdo->prepare('SELECT `full_name`, `role`, `status` FROM `users` WHERE `user_id` = ? LIMIT 1');
+            $stmt->execute([(int)$_SESSION['user_id']]);
+            $u = $stmt->fetch();
+            if ($u) {
+                $_SESSION['user_name'] = $u['full_name'];
+                $_SESSION['user_role'] = $u['role'];
+            }
+        } catch (Exception $e) {}
+    }
+
     return [
         'user_id'   => (int)$_SESSION['user_id'],
         'email'     => $_SESSION['user_email'],

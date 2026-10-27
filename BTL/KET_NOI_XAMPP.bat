@@ -21,6 +21,10 @@ echo ====================================================================
 echo.
 
 set "TARGET_DIR=%~dp0website-analytics"
+if not exist "%TARGET_DIR%\index.php" (
+    set "TARGET_DIR=%~dp0"
+)
+
 set "HTDOCS=C:\xampp\htdocs"
 set "HTDOCS_LINK=%HTDOCS%\website-analytics"
 set "HTDOCS_INDEX=%HTDOCS%\index.php"
@@ -59,11 +63,12 @@ if %errorlevel% neq 0 (
 echo [Buoc 3/4] Cau hinh trang chu http://localhost/ de tu dong mo website-analytics...
 powershell -NoProfile -Command "Set-Content -Path '%HTDOCS_INDEX%' -Value '<?php header(\"Location: /website-analytics/\"); exit; ?>'" >nul
 
-:: 5. Kiem tra MySQL va khoi tao Database
-echo [Buoc 4/4] Khoi tao co so du lieu MySQL website_analytics...
-if exist "C:\xampp\mysql\bin\mysql.exe" (
-    Get-Content "%TARGET_DIR%\database\schema.sql" | "C:\xampp\mysql\bin\mysql.exe" -u root 2>nul
-    Get-Content "%TARGET_DIR%\database\seed.sql" | "C:\xampp\mysql\bin\mysql.exe" -u root 2>nul
+:: 5. Kiem tra MySQL va khoi tao Database bang PHP (Bao dam chuan 100%% UTF-8 tieng Viet)
+echo [Buoc 4/4] Khoi tao co so du lieu MySQL website_analytics (UTF-8 chuan)...
+if exist "C:\xampp\php\php.exe" (
+    if exist "%TARGET_DIR%\scripts\init-db.php" (
+        "C:\xampp\php\php.exe" "%TARGET_DIR%\scripts\init-db.php"
+    )
 )
 
 echo.
