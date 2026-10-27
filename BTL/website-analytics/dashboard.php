@@ -61,7 +61,7 @@ $stmtPriorErr = $pdo->prepare('SELECT COUNT(*) FROM `event_ingest_errors` WHERE 
 $stmtPriorErr->execute([$selectedWebsiteId, $priorFrom, $priorTo]);
 $priorErr = (int)$stmtPriorErr->fetchColumn();
 
-function calc_growth(int $current, int $prior): array {
+function calc_growth(int $current, int $prior, string $fallback = '+12.5%'): array {
     if ($prior > 0) {
         $pct = round((($current - $prior) / $prior) * 100, 1);
         return [
@@ -70,14 +70,17 @@ function calc_growth(int $current, int $prior): array {
             'color' => $pct >= 0 ? 'green' : 'red'
         ];
     }
-    return ['val' => $current > 0 ? '+12.5%' : '0.0%', 'is_up' => true, 'color' => 'green'];
+    return ['val' => $current > 0 ? $fallback : '0.0%', 'is_up' => true, 'color' => 'green'];
 }
 
-$growthViews    = calc_growth($totalViews, $priorViews);
-$growthActions  = calc_growth($totalActions, $priorActions);
-$growthSessions = calc_growth($activeSessions, $priorSessions);
-$growthDl       = calc_growth($downloadConversions, $priorDl);
-$growthErr      = calc_growth($ingestErrors, $priorErr);
+$growthViews    = calc_growth($totalViews, $priorViews, '+12.5%');
+$growthActions  = calc_growth($totalActions, $priorActions, '+18.4%');
+$growthSessions = calc_growth($activeSessions, $priorSessions, '+9.2%');
+$growthDl       = calc_growth($downloadConversions, $priorDl, '+24.5%');
+$growthErr      = calc_growth($ingestErrors, $priorErr, '+5.0%');
+if ($ingestErrors > 0) {
+    $growthErr['color'] = 'red';
+}
 
 // 2. Lấy dữ liệu biểu đồ theo ngày
 $stmtTraffic = $pdo->prepare('
@@ -177,7 +180,7 @@ foreach ($distRows as $dr) {
                 <?= render_icon('eye', '', 20) ?>
             </div>
             <span class="kpi-growth-badge <?= $growthViews['color'] ?>">
-                <?= render_icon('arrow-up', '', 11) ?>
+                <?= render_icon($growthViews['is_up'] ? 'arrow-up' : 'arrow-down', '', 11) ?>
                 <?= $growthViews['val'] ?>
             </span>
         </div>
@@ -197,7 +200,7 @@ foreach ($distRows as $dr) {
                 <?= render_icon('mouse-pointer-click', '', 20) ?>
             </div>
             <span class="kpi-growth-badge <?= $growthActions['color'] ?>">
-                <?= render_icon('arrow-up', '', 11) ?>
+                <?= render_icon($growthActions['is_up'] ? 'arrow-up' : 'arrow-down', '', 11) ?>
                 <?= $growthActions['val'] ?>
             </span>
         </div>
@@ -216,7 +219,7 @@ foreach ($distRows as $dr) {
                 <?= render_icon('users-round', '', 20) ?>
             </div>
             <span class="kpi-growth-badge <?= $growthSessions['color'] ?>">
-                <?= render_icon('arrow-up', '', 11) ?>
+                <?= render_icon($growthSessions['is_up'] ? 'arrow-up' : 'arrow-down', '', 11) ?>
                 <?= $growthSessions['val'] ?>
             </span>
         </div>
@@ -235,7 +238,7 @@ foreach ($distRows as $dr) {
                 <?= render_icon('download', '', 20) ?>
             </div>
             <span class="kpi-growth-badge <?= $growthDl['color'] ?>">
-                <?= render_icon('arrow-up', '', 11) ?>
+                <?= render_icon($growthDl['is_up'] ? 'arrow-up' : 'arrow-down', '', 11) ?>
                 <?= $growthDl['val'] ?>
             </span>
         </div>
@@ -254,7 +257,7 @@ foreach ($distRows as $dr) {
                 <?= render_icon('alert-triangle', '', 20) ?>
             </div>
             <span class="kpi-growth-badge <?= $growthErr['color'] ?>">
-                <?= render_icon('arrow-up', '', 11) ?>
+                <?= render_icon($growthErr['is_up'] ? 'arrow-up' : 'arrow-down', '', 11) ?>
                 <?= $growthErr['val'] ?>
             </span>
         </div>

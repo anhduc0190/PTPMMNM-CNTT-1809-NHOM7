@@ -24,6 +24,13 @@ if ($selectedWebsiteId <= 0 && !empty($accessibleWebsites)) {
 }
 $_SESSION['selected_website_id'] = $selectedWebsiteId;
 
+if (!headers_sent()) {
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+    header("Expires: 0");
+}
+
 $fromDate = $_GET['from_date'] ?? date('Y-m-d', strtotime('-14 days'));
 $toDate   = $_GET['to_date'] ?? date('Y-m-d');
 ?>
@@ -33,7 +40,15 @@ $toDate   = $_GET['to_date'] ?? date('Y-m-d');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($pageTitle ?? 'Dashboard') ?> — <?= APP_NAME ?></title>
-    <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= $baseUrl ?>/assets/css/dashboard.css?v=<?= file_exists(__DIR__ . '/../assets/css/dashboard.css') ? filemtime(__DIR__ . '/../assets/css/dashboard.css') : time() ?>_<?= time() ?>">
+    <style>
+<?php
+$cssInlineFile = __DIR__ . '/../assets/css/dashboard.css';
+if (file_exists($cssInlineFile)) {
+    readfile($cssInlineFile);
+}
+?>
+    </style>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>

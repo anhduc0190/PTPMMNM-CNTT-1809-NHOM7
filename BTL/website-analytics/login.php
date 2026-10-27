@@ -31,6 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = $res['message'];
     }
 }
+
+if (!headers_sent()) {
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+    header("Expires: 0");
+}
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -38,8 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng Nhập — <?= APP_NAME ?></title>
-    <link rel="stylesheet" href="<?= $base ?>/assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= $base ?>/assets/css/dashboard.css?v=<?= file_exists(__DIR__ . '/assets/css/dashboard.css') ? filemtime(__DIR__ . '/assets/css/dashboard.css') : time() ?>_<?= time() ?>">
     <style>
+<?php
+$cssLoginFile = __DIR__ . '/assets/css/dashboard.css';
+if (file_exists($cssLoginFile)) {
+    readfile($cssLoginFile);
+}
+?>
         body {
             background-color: #0b1727;
             background-image: radial-gradient(rgba(37, 99, 235, 0.12) 1px, transparent 0);
