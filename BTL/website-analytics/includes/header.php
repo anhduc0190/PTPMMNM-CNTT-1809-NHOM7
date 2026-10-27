@@ -1,7 +1,10 @@
 <?php
 // ====================================================================
 // INCLUDES: HEADER CHUNG (includes/header.php)
-// Giao diện Enterprise SaaS: Hamburger Drawer, Breadcrumb, Bộ Lọc Toàn Cục
+// Thiết kế chuẩn xác theo Mockup Reference:
+// - Header Greeting: "Xin chào, Admin!" + Subtitle
+// - Action Pills: Mở Demo Site A, Mở Demo Site B, Date Range Pill
+// - Sub-header Filter: Website Select, Nút Lọc dữ liệu (Xanh dương), Nút Xuất CSV (Xanh lá)
 // ====================================================================
 
 require_once __DIR__ . '/../config/app.php';
@@ -39,70 +42,68 @@ $toDate   = $_GET['to_date'] ?? date('Y-m-d');
     <div id="sidebar-overlay" class="sidebar-overlay"></div>
     <?php require_once __DIR__ . '/sidebar.php'; ?>
     <div class="main-wrapper">
+        <!-- Top Header Bar -->
         <header class="top-header">
             <div class="top-header-left">
                 <button type="button" class="mobile-menu-toggle" id="sidebar-toggle" aria-label="Mở menu điều hướng">
                     <?= render_icon('menu', '', 18) ?>
                 </button>
-                <div class="page-title">
-                    <?= e($pageTitle ?? 'Tổng quan') ?>
+                <div>
+                    <h1 class="greeting-title">
+                        Xin chào, <?= e($currentUser['full_name'] ?? 'Admin') ?>!
+                    </h1>
+                    <div class="greeting-sub">
+                        Tổng quan hoạt động của các website được theo dõi
+                    </div>
                 </div>
             </div>
+
             <div class="top-header-actions">
-                <a href="<?= $baseUrl ?>/demo-sites/site-a/index.html" target="_blank" class="btn btn-outline btn-sm" title="Mở trang demo Thương Mại Điện Tử (Site A)">
-                    <?= render_icon('external-link', '', 13) ?>
-                    <span class="btn-text">Demo Site A</span>
+                <a href="<?= $baseUrl ?>/demo-sites/site-a/index.html" target="_blank" class="pill-btn-site-a" title="Mở trang demo Thương Mại Điện Tử (Site A)">
+                    <?= render_icon('store', '', 14) ?>
+                    <span>Mở Demo Site A</span>
                 </a>
-                <a href="<?= $baseUrl ?>/demo-sites/site-b/index.html" target="_blank" class="btn btn-outline btn-sm" title="Mở trang demo Tin Tức & Khóa Học (Site B)">
-                    <?= render_icon('external-link', '', 13) ?>
-                    <span class="btn-text">Demo Site B</span>
+                <a href="<?= $baseUrl ?>/demo-sites/site-b/index.html" target="_blank" class="pill-btn-site-b" title="Mở trang demo Tin Tức & Khóa Học (Site B)">
+                    <?= render_icon('rocket', '', 14) ?>
+                    <span>Mở Demo Site B</span>
                 </a>
-                <a href="<?= $baseUrl ?>/logout.php" class="btn btn-outline btn-sm" style="color:var(--accent-red-text); border-color:var(--accent-red-border);" title="Đăng xuất khỏi hệ thống">
-                    <?= render_icon('log-out', '', 13) ?>
-                    <span class="btn-text">Đăng xuất</span>
-                </a>
+                <div class="pill-date-range" title="Khoảng thời gian báo cáo">
+                    <?= render_icon('calendar', '', 14, 'var(--text-muted)') ?>
+                    <span><?= date('d/m/Y', strtotime($fromDate)) ?> &nbsp;&rarr;&nbsp; <?= date('d/m/Y', strtotime($toDate)) ?></span>
+                    <?= render_icon('chevron-down', '', 14, 'var(--text-muted)') ?>
+                </div>
             </div>
         </header>
 
-        <!-- Thanh Bộ Lọc Toàn Cục (Global Filter Bar) -->
+        <!-- Thanh Bộ Lọc Phụ (Sub-header Filter Bar) -->
         <div class="filter-bar">
-            <form id="global-filter-form" method="GET" class="filter-bar-form">
-                <div class="filter-item">
-                    <span class="filter-label">
-                        <?= render_icon('globe', '', 14, 'var(--text-secondary)') ?>
-                        Website:
-                    </span>
-                    <select name="website_id" class="form-select" onchange="this.form.submit()">
-                        <?php foreach ($accessibleWebsites as $site): ?>
-                            <option value="<?= $site['website_id'] ?>" <?= $site['website_id'] == $selectedWebsiteId ? 'selected' : '' ?>>
-                                <?= e($site['name']) ?> (ID: <?= $site['website_id'] ?>)
-                            </option>
-                        <?php endforeach; ?>
-                        <?php if (empty($accessibleWebsites)): ?>
-                            <option value="0">Chưa có website nào</option>
-                        <?php endif; ?>
-                    </select>
-                </div>
+            <form id="global-filter-form" method="GET" class="filter-left-group">
+                <span class="filter-website-label">Website</span>
+                <select name="website_id" class="filter-website-select" onchange="this.form.submit()">
+                    <?php foreach ($accessibleWebsites as $site): ?>
+                        <option value="<?= $site['website_id'] ?>" <?= $site['website_id'] == $selectedWebsiteId ? 'selected' : '' ?>>
+                            <?= e($site['name']) ?> (ID: <?= $site['website_id'] ?>)
+                        </option>
+                    <?php endforeach; ?>
+                    <?php if (empty($accessibleWebsites)): ?>
+                        <option value="0">Chưa có website nào</option>
+                    <?php endif; ?>
+                </select>
 
-                <div class="filter-item">
-                    <span class="filter-label">
-                        <?= render_icon('calendar', '', 14, 'var(--text-secondary)') ?>
-                        Từ:
-                    </span>
-                    <input type="date" name="from_date" class="form-input" value="<?= e($fromDate) ?>">
-                    <span class="filter-label">Đến:</span>
-                    <input type="date" name="to_date" class="form-input" value="<?= e($toDate) ?>">
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <?= render_icon('filter', '', 13) ?>
-                        Áp Dụng
-                    </button>
-                </div>
+                <!-- Hidden date inputs for form submit -->
+                <input type="hidden" name="from_date" value="<?= e($fromDate) ?>">
+                <input type="hidden" name="to_date" value="<?= e($toDate) ?>">
+
+                <button type="submit" class="btn-filter-submit">
+                    <?= render_icon('filter', '', 14) ?>
+                    <span>Lọc dữ liệu</span>
+                </button>
             </form>
 
-            <div class="filter-item">
-                <a href="<?= $baseUrl ?>/api/analytics-export.php?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>" class="btn btn-outline btn-sm">
-                    <?= render_icon('download', '', 13) ?>
-                    Xuất CSV
+            <div>
+                <a href="<?= $baseUrl ?>/api/analytics-export.php?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>" class="btn-export-csv" title="Xuất toàn bộ dữ liệu ra file CSV">
+                    <?= render_icon('download', '', 14) ?>
+                    <span>Xuất CSV</span>
                 </a>
             </div>
         </div>

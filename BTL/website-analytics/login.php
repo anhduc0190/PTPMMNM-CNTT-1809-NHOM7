@@ -41,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="<?= $base ?>/assets/css/dashboard.css">
     <style>
         body {
-            background-color: #0f172a;
-            background-image: radial-gradient(rgba(37, 99, 235, 0.15) 1px, transparent 0);
+            background-color: #0b1727;
+            background-image: radial-gradient(rgba(37, 99, 235, 0.12) 1px, transparent 0);
             background-size: 24px 24px;
             display: flex;
             align-items: center;
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: #ffffff;
             border-radius: var(--radius-lg);
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.2);
-            border: 1px solid #1e293b;
+            border: 1px solid #142236;
             padding: 2.25rem;
         }
         .login-brand {
@@ -71,13 +71,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .login-brand-mark {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            border-radius: 8px;
+            background: #1a56db;
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 4px 10px rgba(26, 86, 219, 0.35);
         }
         .login-brand-title {
             font-size: 1.45rem;
@@ -177,10 +177,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="login-card">
             <div class="login-brand">
                 <div class="login-brand-mark">
-                    <?= render_icon('activity', '', 20, '#ffffff') ?>
+                    <?= render_icon('chart-no-axes', '', 18, '#ffffff') ?>
                 </div>
                 <div class="login-brand-title">
-                    <span>Web</span>Analytics
+                    Web Analytics
                 </div>
             </div>
             <div class="login-desc">
