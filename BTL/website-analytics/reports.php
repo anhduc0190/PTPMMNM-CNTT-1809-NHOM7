@@ -1,7 +1,7 @@
 <?php
 // ====================================================================
-// BAO CAO THONG KE THEO THOI GIAN & TRANG (reports.php)
-// Ho tro loc theo ngay, trang, su kien va xuat du lieu
+// BÁO CÁO THỐNG KÊ CHI TIẾT (reports.php)
+// Báo cáo theo thời gian, phân bổ loại sự kiện và tương tác theo trang
 // ====================================================================
 
 $pageTitle = 'Báo Cáo Thống Kê Chi Tiết';
@@ -14,7 +14,7 @@ $toDateTime   = $toDate . ' 23:59:59';
 $filterEvent = trim($_GET['event_name'] ?? '');
 $filterPage  = trim($_GET['page_path'] ?? '');
 
-// 1. Thong ke tong the theo Loai Su Kien
+// 1. Thống kê tổng thể theo Loại Sự Kiện
 $stmtEvents = $pdo->prepare('
     SELECT `event_name`, COUNT(*) AS `total_events`, COUNT(DISTINCT `session_id`) AS `unique_sessions`
     FROM `events`
@@ -25,7 +25,7 @@ $stmtEvents = $pdo->prepare('
 $stmtEvents->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
 $eventBreakdown = $stmtEvents->fetchAll();
 
-// 2. Thong ke Trang pho bien theo bo loc
+// 2. Thống kê Trang phổ biến theo bộ lọc
 $pagesSql = '
     SELECT `page_path`, 
            SUM(CASE WHEN `event_name` = "page_view" THEN 1 ELSE 0 END) AS `views_count`,
@@ -45,7 +45,7 @@ $stmtPages = $pdo->prepare($pagesSql);
 $stmtPages->execute($pageParams);
 $pageStats = $stmtPages->fetchAll();
 
-// 3. Du lieu bieu do theo ngay
+// 3. Dữ liệu biểu đồ theo ngày
 $stmtDaily = $pdo->prepare('
     SELECT DATE(`occurred_at`) AS `day`, 
            SUM(CASE WHEN `event_name` = "page_view" THEN 1 ELSE 0 END) AS `views`,
@@ -58,8 +58,8 @@ $stmtDaily = $pdo->prepare('
 $stmtDaily->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
 $dailyRows = $stmtDaily->fetchAll();
 
-$dLabels = [];
-$dViews  = [];
+$dLabels  = [];
+$dViews   = [];
 $dActions = [];
 foreach ($dailyRows as $dr) {
     $dLabels[]  = date('d/m/Y', strtotime($dr['day']));
@@ -68,45 +68,77 @@ foreach ($dailyRows as $dr) {
 }
 ?>
 
+<!-- PHÂN BỔ LOẠI SỰ KIỆN -->
 <div class="card-section">
     <div class="card-title-bar">
-        <h3>📊 Phân Bổ Các Loại Sự Kiện Trong Kỳ</h3>
+        <h3>
+            <?= render_icon('chart-bar', '', 18, 'var(--primary)') ?>
+            Phân Bổ Các Loại Sự Kiện Trong Kỳ Báo Cáo
+        </h3>
         <a href="<?= $baseUrl ?>/api/analytics-export.php?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>" class="btn btn-outline btn-sm">
-            📥 Xuất Toàn Bộ Dữ Liệu Nguồn Ra CSV
+            <?= render_icon('download', '', 14) ?>
+            Xuất Toàn Bộ Dữ Liệu Nguồn Ra CSV
         </a>
     </div>
 
-    <div class="kpi-grid" style="margin-bottom:1rem;">
+    <div class="kpi-grid" style="margin-bottom:0.5rem;">
         <?php foreach ($eventBreakdown as $eb): ?>
+            <?php
+            $icon = 'activity';
+            $wrapClass = 'blue';
+            if ($eb['event_name'] === 'page_view') { $icon = 'eye'; $wrapClass = 'blue'; }
+            elseif ($eb['event_name'] === 'button_click') { $icon = 'zap'; $wrapClass = 'green'; }
+            elseif ($eb['event_name'] === 'download_start') { $icon = 'download'; $wrapClass = 'yellow'; }
+            elseif ($eb['event_name'] === 'download_complete') { $icon = 'check-circle'; $wrapClass = 'purple'; }
+            ?>
             <div class="kpi-card">
                 <div class="kpi-header">
                     <span class="kpi-title"><?= e($eb['event_name']) ?></span>
-                    <span class="kpi-icon blue">📌</span>
+                    <span class="kpi-icon-wrap <?= $wrapClass ?>">
+                        <?= render_icon($icon, '', 17) ?>
+                    </span>
                 </div>
                 <div class="kpi-value"><?= number_format((int)$eb['total_events']) ?></div>
                 <div class="kpi-sub">Trong <?= number_format((int)$eb['unique_sessions']) ?> phiên truy cập</div>
             </div>
         <?php endforeach; ?>
         <?php if (empty($eventBreakdown)): ?>
-            <div style="grid-column: 1/-1; color:#64748b; padding:1rem 0;">Chưa có dữ liệu sự kiện trong kỳ báo cáo đã chọn.</div>
+            <div style="grid-column: 1/-1;" class="empty-state">
+                <div class="empty-icon"><?= render_icon('inbox', '', 24) ?></div>
+                <h4>Không có dữ liệu sự kiện trong kỳ</h4>
+                <p>Vui lòng chọn khoảng thời gian khác hoặc kiểm tra lại website đang chọn.</p>
+            </div>
         <?php endif; ?>
     </div>
 </div>
 
-<!-- BIEU DO THEO NGAY -->
+<!-- BIỂU ĐỒ THEO NGÀY -->
 <div class="card-section">
     <div class="card-title-bar">
-        <h3>📅 Lượt Xem & Thao Tác Phân Bổ Theo Ngày Báo Cáo</h3>
+        <h3>
+            <?= render_icon('calendar', '', 18, 'var(--accent-blue)') ?>
+            Lượt Xem & Thao Tác Phân Bổ Theo Ngày Báo Cáo
+        </h3>
+        <span class="badge badge-gray">
+            <?= render_icon('activity', '', 12) ?>
+            Dữ liệu tổng hợp
+        </span>
     </div>
     <div style="height: 280px; position:relative;">
         <canvas id="dailyReportChart"></canvas>
     </div>
 </div>
 
-<!-- BANG CHI TIET THEO TRANG -->
+<!-- BẢNG CHI TIẾT THEO TRANG -->
 <div class="card-section">
     <div class="card-title-bar">
-        <h3>📄 Bảng Chi Tiết Thống Kê Theo Trang (Page Path)</h3>
+        <h3>
+            <?= render_icon('file-text', '', 18, 'var(--text-secondary)') ?>
+            Bảng Chi Tiết Thống Kê Theo Trang (Page Path)
+        </h3>
+        <span class="badge badge-blue">
+            <?= count($pageStats) ?> đường dẫn
+        </span>
     </div>
 
     <div class="table-responsive">
@@ -134,13 +166,18 @@ foreach ($dailyRows as $dr) {
                         <td><?= number_format((int)$p['sessions_count']) ?></td>
                         <td>
                             <span class="badge <?= $ratio > 50 ? 'badge-green' : 'badge-gray' ?>">
+                                <?= render_icon($ratio > 50 ? 'zap' : 'activity', '', 11) ?>
                                 <?= $ratio ?>%
                             </span>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (empty($pageStats)): ?>
-                    <tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:2rem;">Không có dữ liệu trang</td></tr>
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:var(--text-muted); padding:2.5rem;">
+                            Không có dữ liệu trang nào trong khoảng thời gian đã chọn
+                        </td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>
@@ -159,21 +196,49 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Lượt xem trang (page_view)',
                     data: <?= json_encode(!empty($dViews) ? $dViews : [0]) ?>,
                     backgroundColor: '#3b82f6',
-                    borderRadius: 4
+                    borderRadius: 4,
+                    barPercentage: 0.7
                 },
                 {
                     label: 'Lần thao tác (actions)',
                     data: <?= json_encode(!empty($dActions) ? $dActions : [0]) ?>,
                     backgroundColor: '#10b981',
-                    borderRadius: 4
+                    borderRadius: 4,
+                    barPercentage: 0.7
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                        boxWidth: 10,
+                        boxHeight: 10,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#0f172a',
+                    titleColor: '#ffffff',
+                    bodyColor: '#f1f5f9',
+                    cornerRadius: 6,
+                    padding: 10
+                }
+            },
             scales: {
-                y: { beginAtZero: true, ticks: { precision: 0 } }
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                    grid: { color: 'rgba(226, 232, 240, 0.8)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
             }
         }
     });
