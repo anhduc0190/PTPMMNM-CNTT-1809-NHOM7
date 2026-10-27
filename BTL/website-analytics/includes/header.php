@@ -113,6 +113,16 @@ if (file_exists($cssInlineFile)) {
                     <?= render_icon('filter', '', 14) ?>
                     <span>Lọc dữ liệu</span>
                 </button>
+
+                <button type="button" class="btn-filter-refresh" onclick="window.location.reload()" title="Làm mới số liệu ngay lập tức">
+                    <?= render_icon('refresh-cw', '', 13) ?>
+                    <span>Làm mới</span>
+                </button>
+
+                <div class="badge-live" title="Dữ liệu tự động đồng bộ thời gian thực khi bạn thao tác trên Website Demo">
+                    <span class="pulse-dot"></span>
+                    <span>Trực tiếp (Live)</span>
+                </div>
             </form>
 
             <div>
