@@ -65,6 +65,50 @@
                 </div>
             </div>
         </div>
+
+        <!-- BẢNG ĐIỀU KHIỂN KIỂM THỬ TRỰC TIẾP (TESTING SANDBOX CHO SINH VIÊN BẢO VỆ ĐỒ ÁN) -->
+        <section class="testing-sandbox">
+            <div class="sandbox-header">
+                <div class="sandbox-title">
+                    <span class="sandbox-badge">Bảng Thử Nghiệm</span>
+                    <h3>Kiểm Thử "Phiên Hoạt Động" & "Lỗi Tiếp Nhận / Xung Đột"</h3>
+                </div>
+                <div class="sandbox-session-info">
+                    <span>Session ID hiện tại:</span>
+                    <code id="sandbox-session-id">Đang khởi tạo...</code>
+                </div>
+            </div>
+            <p class="sandbox-desc">
+                Bấm các nút kiểm thử bên dưới để phát sinh tương tác thực nghiệm, sau đó kiểm tra số liệu tức thì trên 
+                <strong>Dashboard</strong> (Card "Phiên hoạt động", Card "Lỗi tiếp nhận") và trang 
+                <strong>Nhật Ký Lỗi Tiếp Nhận</strong>.
+            </p>
+            <div class="sandbox-actions">
+                <button type="button" class="btn-sandbox btn-sb-session" id="btn-sb-new-session" title="Tạo một phiên truy cập ẩn danh hoàn toàn mới">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                    Tạo Phiên Mới (Tăng Card "Phiên hoạt động")
+                </button>
+                <button type="button" class="btn-sandbox btn-sb-conflict" id="btn-sb-conflict" title="Mô phỏng gửi trùng Event ID nhưng khác nội dung (HTTP 409)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Mô Phỏng Xung Đột Payload (HTTP 409)
+                </button>
+                <button type="button" class="btn-sandbox btn-sb-late" id="btn-sb-late" title="Mô phỏng sự kiện đến trễ hơn 24 giờ (HTTP 422)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Mô Phỏng Sự Kiện Quá Hạn (HTTP 422)
+                </button>
+                <button type="button" class="btn-sandbox btn-sb-undefined" id="btn-sb-undefined" title="Mô phỏng gửi sự kiện chưa được khai báo (HTTP 400)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Mô Phỏng Sự Kiện Lạ Chưa Khai Báo (HTTP 400)
+                </button>
+            </div>
+            <div class="sandbox-footer">
+                <span>Phản hồi API gần nhất: <strong id="sandbox-last-status" style="color:#64748b;">Sẵn sàng thử nghiệm</strong></span>
+                <div class="sandbox-links">
+                    <a href="../../dashboard.php" target="_blank" class="sb-link">Xem Dashboard ↗</a>
+                    <a href="../../event-logs.php?tab=errors" target="_blank" class="sb-link">Xem Nhật Ký Lỗi Tiếp Nhận ↗</a>
+                </div>
+            </div>
+        </section>
     </main>
 
     <div id="event-toast" class="event-toast"></div>
@@ -80,21 +124,193 @@
     </script>
 
     <script>
-        // Hiển thị toast thông báo khi sự kiện được gửi thành công
         window.addEventListener('load', function() {
             var toast = document.getElementById('event-toast');
-            function showToast(msg) {
+            var sessionLabel = document.getElementById('sandbox-session-id');
+            var statusLabel = document.getElementById('sandbox-last-status');
+
+            function showToast(msg, borderColor) {
                 toast.innerHTML = '⚡ <b>Tracking:</b> ' + msg;
+                toast.style.borderLeftColor = borderColor || 'var(--accent)';
                 toast.classList.add('show');
-                setTimeout(function() { toast.classList.remove('show'); }, 3000);
+                setTimeout(function() { toast.classList.remove('show'); }, 4000);
             }
+
+            function updateSessionDisplay() {
+                if (window.WebTracker && sessionLabel) {
+                    sessionLabel.innerText = window.WebTracker.getSessionId();
+                }
+            }
+
+            // Cập nhật session ID ban đầu
+            updateSessionDisplay();
             showToast('Đã tự động gửi sự kiện <b>page_view</b> cho Trang chủ!');
+
+            // 1. Tự động lắng nghe click mua sắm thông thường
             document.addEventListener('click', function(e) {
                 var btn = e.target.closest('[data-track-click]');
                 if (btn) {
                     showToast('Đã gửi sự kiện <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
                 }
             });
+
+            // 2. Nút Tạo Phiên Mới
+            var btnNewSession = document.getElementById('btn-sb-new-session');
+            if (btnNewSession) {
+                btnNewSession.addEventListener('click', function() {
+                    try {
+                        window.sessionStorage.removeItem('wa_session_trk_site_a_alpha_shop_2026');
+                    } catch(e) {}
+                    // Ép SDK khởi tạo lại session
+                    var newSess = 'sess_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
+                    try {
+                        window.sessionStorage.setItem('wa_session_trk_site_a_alpha_shop_2026', newSess);
+                    } catch(e) {}
+                    
+                    window.location.reload();
+                });
+            }
+
+            // 3. Nút Mô Phỏng Xung Đột Payload (HTTP 409)
+            var btnConflict = document.getElementById('btn-sb-conflict');
+            if (btnConflict) {
+                btnConflict.addEventListener('click', function() {
+                    var conflictEventId = 'conflict_' + Date.now();
+                    var sessId = window.WebTracker.getSessionId();
+                    var endpoint = '../../api/track.php';
+                    var trackingKey = 'trk_site_a_alpha_shop_2026';
+
+                    statusLabel.innerText = 'Đang gửi sự kiện gốc #1...';
+                    statusLabel.style.color = '#2563eb';
+
+                    // Gửi lần 1 hợp lệ
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Tracking-Key': trackingKey },
+                        body: JSON.stringify({
+                            tracking_key: trackingKey,
+                            event_id: conflictEventId,
+                            session_id: sessId,
+                            event_name: 'button_click',
+                            page_path: window.location.pathname,
+                            occurred_at: new Date().toISOString(),
+                            properties: { element_id: 'btn-conflict-original', payload_version: 1 }
+                        })
+                    }).then(function(r1) {
+                        return r1.json();
+                    }).then(function(d1) {
+                        // Gửi lần 2 CÙNG event_id nhưng KHÁC properties (gây lệch hash SHA-256)
+                        return fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-Tracking-Key': trackingKey },
+                            body: JSON.stringify({
+                                tracking_key: trackingKey,
+                                event_id: conflictEventId,
+                                session_id: sessId,
+                                event_name: 'button_click',
+                                page_path: window.location.pathname,
+                                occurred_at: new Date().toISOString(),
+                                properties: { element_id: 'btn-conflict-TAMPERED', payload_version: 2, hacked: true }
+                            })
+                        });
+                    }).then(function(r2) {
+                        return r2.json().then(function(d2) {
+                            if (r2.status === 409) {
+                                statusLabel.innerText = 'HTTP 409 Conflict: PAYLOAD_CONFLICT (Đã ghi vào DB)';
+                                statusLabel.style.color = '#dc2626';
+                                showToast('⚠️ <b>HTTP 409 Conflict:</b> Phát hiện cùng event_id nhưng sai lệch SHA-256! Card "Lỗi tiếp nhận" trên Dashboard đã tăng +1.', '#dc2626');
+                            } else {
+                                statusLabel.innerText = 'HTTP ' + r2.status + ' (' + (d2.error || 'OK') + ')';
+                            }
+                        });
+                    }).catch(function(err) {
+                        statusLabel.innerText = 'Lỗi kết nối: ' + err.message;
+                    });
+                });
+            }
+
+            // 4. Nút Mô Phỏng Sự Kiện Quá Hạn (HTTP 422 - Late Event)
+            var btnLate = document.getElementById('btn-sb-late');
+            if (btnLate) {
+                btnLate.addEventListener('click', function() {
+                    var lateEventId = 'late_' + Date.now();
+                    var sessId = window.WebTracker.getSessionId();
+                    var endpoint = '../../api/track.php';
+                    var trackingKey = 'trk_site_a_alpha_shop_2026';
+
+                    // Lùi thời gian 48 giờ về trước (vượt quá 24h quy định)
+                    var pastDate = new Date(Date.now() - 48 * 3600 * 1000).toISOString();
+
+                    statusLabel.innerText = 'Đang gửi sự kiện trễ 48h...';
+                    statusLabel.style.color = '#d97706';
+
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Tracking-Key': trackingKey },
+                        body: JSON.stringify({
+                            tracking_key: trackingKey,
+                            event_id: lateEventId,
+                            session_id: sessId,
+                            event_name: 'page_view',
+                            page_path: window.location.pathname,
+                            occurred_at: pastDate,
+                            properties: { note: 'Kiểm thử late event policy' }
+                        })
+                    }).then(function(res) {
+                        return res.json().then(function(data) {
+                            if (res.status === 422) {
+                                statusLabel.innerText = 'HTTP 422 Unprocessable: LATE_EVENT_EXCEEDED (Đã ghi vào DB)';
+                                statusLabel.style.color = '#d97706';
+                                showToast('⏰ <b>HTTP 422 Late Event:</b> Sự kiện cũ hơn 24 giờ bị từ chối! Card "Lỗi tiếp nhận" trên Dashboard đã tăng +1.', '#d97706');
+                            } else {
+                                statusLabel.innerText = 'HTTP ' + res.status + ' (' + (data.error || 'OK') + ')';
+                            }
+                        });
+                    }).catch(function(err) {
+                        statusLabel.innerText = 'Lỗi kết nối: ' + err.message;
+                    });
+                });
+            }
+
+            // 5. Nút Mô Phỏng Sự Kiện Lạ Chưa Khai Báo (HTTP 400 - Undefined Event)
+            var btnUndefined = document.getElementById('btn-sb-undefined');
+            if (btnUndefined) {
+                btnUndefined.addEventListener('click', function() {
+                    var undefEventId = 'undef_' + Date.now();
+                    var sessId = window.WebTracker.getSessionId();
+                    var endpoint = '../../api/track.php';
+                    var trackingKey = 'trk_site_a_alpha_shop_2026';
+
+                    statusLabel.innerText = 'Đang gửi sự kiện chưa khai báo...';
+                    statusLabel.style.color = '#475569';
+
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Tracking-Key': trackingKey },
+                        body: JSON.stringify({
+                            tracking_key: trackingKey,
+                            event_id: undefEventId,
+                            session_id: sessId,
+                            event_name: 'unauthorized_hacked_action',
+                            page_path: window.location.pathname,
+                            occurred_at: new Date().toISOString(),
+                            properties: { test: true }
+                        })
+                    }).then(function(res) {
+                        return res.json().then(function(data) {
+                            if (res.status === 400) {
+                                statusLabel.innerText = 'HTTP 400 Bad Request: EVENT_NOT_DEFINED (Đã ghi vào DB)';
+                                statusLabel.style.color = '#dc2626';
+                                showToast('🚫 <b>HTTP 400 Undefined:</b> Sự kiện lạ chưa được khai báo bị từ chối! Card "Lỗi tiếp nhận" trên Dashboard đã tăng +1.', '#dc2626');
+                            } else {
+                                statusLabel.innerText = 'HTTP ' + res.status + ' (' + (data.error || 'OK') + ')';
+                            }
+                        });
+                    }).catch(function(err) {
+                        statusLabel.innerText = 'Lỗi kết nối: ' + err.message;
+                    });
+                });
+            }
         });
     </script>
 </body>

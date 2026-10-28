@@ -187,3 +187,156 @@ footer {
     font-size: 0.85rem;
     margin-top: auto;
 }
+
+/* ====================================================================
+   TESTING SANDBOX COMPONENT (DÀNH CHO KIỂM THỬ VÀ BẢO VỆ ĐỒ ÁN)
+   ==================================================================== */
+.testing-sandbox {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-left: 5px solid #2563eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2.5rem 0;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+.sandbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.75rem;
+}
+.sandbox-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+.sandbox-badge {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.sandbox-title h3 {
+    font-size: 1.15rem;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0;
+}
+.sandbox-session-info {
+    font-size: 0.82rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.sandbox-session-info code {
+    background: #f1f5f9;
+    color: #0f172a;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-weight: 600;
+}
+.sandbox-desc {
+    font-size: 0.88rem;
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+.sandbox-actions {
+    display: flex;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.btn-sandbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.84rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.btn-sb-session {
+    background: #f0fdf4;
+    color: #166534;
+    border-color: #bbf7d0;
+}
+.btn-sb-session:hover {
+    background: #dcfce7;
+    border-color: #86efac;
+    transform: translateY(-1px);
+}
+.btn-sb-conflict {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #fecaca;
+}
+.btn-sb-conflict:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    transform: translateY(-1px);
+}
+.btn-sb-late {
+    background: #fffbeb;
+    color: #92400e;
+    border-color: #fde68a;
+}
+.btn-sb-late:hover {
+    background: #fef3c7;
+    border-color: #fcd34d;
+    transform: translateY(-1px);
+}
+.btn-sb-undefined {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #cbd5e1;
+}
+.btn-sb-undefined:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    transform: translateY(-1px);
+}
+.sandbox-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    background: #f8fafc;
+    padding: 0.6rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    color: #475569;
+    border: 1px solid #f1f5f9;
+}
+.sandbox-links {
+    display: flex;
+    gap: 0.75rem;
+}
+.sb-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+.sb-link:hover {
+    text-decoration: underline;
+    color: #1d4ed8;
+}
