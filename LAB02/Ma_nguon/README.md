@@ -22,9 +22,9 @@ bash lab.sh test
 bash lab.sh extend
 ```
 
-`test` kiểm tra phần mẫu; `extend` kiểm tra phần tự làm. Các vị trí TODO là nhiệm vụ cần hoàn thiện; không sửa test để bỏ qua lỗi.
+`test` kiểm tra phần mẫu; `extend` kiểm tra các trạng thái đăng ký, dữ liệu sai và biên.
 
-Kết quả mở rộng cần đạt: `TESTS=8 FAILED=0`. Có lớp kiểm tra sức chứa, chương trình gọi lớp và lớp mở rộng trả confirmed, waiting hoặc rejected theo quy tắc đã công bố.
+Kết quả yêu cầu: `TESTS=5 FAILED=0` và `TESTS=9 FAILED=0`. Có lớp kiểm tra sức chứa, chương trình gọi lớp và lớp mở rộng trả confirmed, waiting hoặc rejected theo quy tắc đã công bố.
 
 ## Tệp nộp
 

@@ -22,9 +22,9 @@ bash lab.sh test
 bash lab.sh extend
 ```
 
-`test` kiểm tra phần mẫu; `extend` kiểm tra phần tự làm. Các vị trí TODO là nhiệm vụ cần hoàn thiện; không sửa test để bỏ qua lỗi.
+`test` kiểm tra phần mẫu; `extend` kiểm tra bộ quét mã PHP với thư mục thiếu/rỗng, tệp sai cú pháp và đường dẫn có khoảng trắng.
 
-Kết quả mở rộng cần đạt: `SHELL_CASES=4 FAILED=0`. Hoàn thành script kiểm tra môi trường và script quét mã PHP; xử lý được thư mục thiếu, thư mục rỗng, tệp sai cú pháp và đường dẫn có khoảng trắng.
+Kết quả yêu cầu: `CHECK_ENV=PASS` và `SHELL_CASES=4 FAILED=0`. Script kiểm tra môi trường và script quét mã PHP đã hoàn thiện.
 
 ## Tệp nộp
 

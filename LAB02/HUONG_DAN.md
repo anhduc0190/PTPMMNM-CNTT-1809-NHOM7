@@ -72,7 +72,7 @@ Thư mục Lab02/Ma\_nguon đã có mã mẫu cho phần hướng dẫn. Chạy 
 | **Phần thực hành** | **Tệp và công việc** | **Kết quả cần đạt** |
 | --- | --- | --- |
 | Mẫu có hướng dẫn | src/CapacityPolicy.php; demo.php<br>Đọc và viết lại lớp CapacityPolicy cùng chương trình gọi. Kiểm tra sức chứa, số người hiện tại và điều kiện còn chỗ. | bash lab.sh run: AVAILABLE với (10, 9). bash lab.sh test: TESTS=5 FAILED=0. |
-| Bài tự mở rộng | src/RegistrationPolicy.php<br>Viết phương thức decide để trả confirmed, waiting hoặc rejected; xử lý dữ liệu sai, sự kiện đóng và danh sách chờ. | Bộ 8 ca đã cấp: TESTS=8 FAILED=0. Nếu bổ sung ca, tổng TESTS tăng tương ứng; FAILED phải bằng 0. |
+| Bài tự mở rộng | src/RegistrationPolicy.php<br>Viết phương thức decide để trả confirmed, waiting hoặc rejected; xử lý dữ liệu sai, sự kiện đóng và danh sách chờ. | Bộ ca kiểm thử: TESTS=9 FAILED=0. |
 
 Vai trò từng tệp trong bài mẫu:
 
@@ -248,7 +248,7 @@ Có lớp kiểm tra sức chứa, chương trình gọi lớp và lớp mở r�
 - [ ] Các ca đúng, sai và biên có kết quả đối chiếu.
 - [ ] test và extend đạt; không sửa đáp án trong bộ kiểm thử.
 
-Kết quả tổng hợp của phần tự làm phải có TESTS=8 FAILED=0. Ngoài các phép thử tự động, thực hiện các tình huống kiểm tra trực tiếp nêu trong bài. Lệnh check chỉ xác nhận môi trường, không thay cho test và extend.
+Kết quả tổng hợp của phần tự làm phải có TESTS=9 FAILED=0. Ngoài các phép thử tự động, thực hiện các tình huống kiểm tra trực tiếp nêu trong bài. Lệnh check chỉ xác nhận môi trường, không thay cho test và extend.
 
 ## VIII. RUBRIC LAB — 10 ĐIỂM
 
