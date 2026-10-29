@@ -110,3 +110,4 @@ echo "- Phiên hoạt động (Card 3): {$sessionsBefore} -> {$sessionsAfter} (T
 echo "- Lỗi tiếp nhận (Card 5) : {$errorsBefore} -> {$errorsAfter} (Tăng " . ($errorsAfter - $errorsBefore) . ")" . PHP_EOL;
 
 echo "=== HOÀN TẤT KIỂM THỬ XÁC MINH ===" . PHP_EOL;
+
