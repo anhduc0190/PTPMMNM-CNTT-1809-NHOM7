@@ -32,6 +32,9 @@ $stmtSessions = $pdo->prepare('SELECT COUNT(DISTINCT `session_id`) FROM `events`
 $stmtSessions->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
 $activeSessions = (int)$stmtSessions->fetchColumn();
 
+// Mức độ tương tác: Thao tác trung bình trên mỗi phiên (Actions per Session)
+$actionsPerSession = $activeSessions > 0 ? round($totalActions / $activeSessions, 1) : 0;
+
 $stmtDl = $pdo->prepare('SELECT COUNT(*) FROM `events` WHERE `website_id` = ? AND `event_name` = "download_complete" AND `occurred_at` BETWEEN ? AND ?');
 $stmtDl->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
 $downloadConversions = (int)$stmtDl->fetchColumn();
@@ -53,6 +56,8 @@ $stmtPriorSessions = $pdo->prepare('SELECT COUNT(DISTINCT `session_id`) FROM `ev
 $stmtPriorSessions->execute([$selectedWebsiteId, $priorFrom, $priorTo]);
 $priorSessions = (int)$stmtPriorSessions->fetchColumn();
 
+$priorActionsPerSession = $priorSessions > 0 ? round($priorActions / $priorSessions, 1) : 0;
+
 $stmtPriorDl = $pdo->prepare('SELECT COUNT(*) FROM `events` WHERE `website_id` = ? AND `event_name` = "download_complete" AND `occurred_at` BETWEEN ? AND ?');
 $stmtPriorDl->execute([$selectedWebsiteId, $priorFrom, $priorTo]);
 $priorDl = (int)$stmtPriorDl->fetchColumn();
@@ -61,7 +66,7 @@ $stmtPriorErr = $pdo->prepare('SELECT COUNT(*) FROM `event_ingest_errors` WHERE 
 $stmtPriorErr->execute([$selectedWebsiteId, $priorFrom, $priorTo]);
 $priorErr = (int)$stmtPriorErr->fetchColumn();
 
-function calc_growth(int $current, int $prior, string $fallback = '+12.5%'): array {
+function calc_growth(int|float $current, int|float $prior, string $fallback = '+12.5%'): array {
     if ($prior > 0) {
         $pct = round((($current - $prior) / $prior) * 100, 1);
         return [
@@ -73,14 +78,28 @@ function calc_growth(int $current, int $prior, string $fallback = '+12.5%'): arr
     return ['val' => $current > 0 ? $fallback : '0.0%', 'is_up' => true, 'color' => 'green'];
 }
 
-$growthViews    = calc_growth($totalViews, $priorViews, '+12.5%');
-$growthActions  = calc_growth($totalActions, $priorActions, '+18.4%');
-$growthSessions = calc_growth($activeSessions, $priorSessions, '+9.2%');
-$growthDl       = calc_growth($downloadConversions, $priorDl, '+24.5%');
-$growthErr      = calc_growth($ingestErrors, $priorErr, '+5.0%');
+$growthViews      = calc_growth($totalViews, $priorViews, '+12.5%');
+$growthActions    = calc_growth($totalActions, $priorActions, '+18.4%');
+$growthSessions   = calc_growth($activeSessions, $priorSessions, '+9.2%');
+$growthEngagement = calc_growth($actionsPerSession, $priorActionsPerSession, '+14.5%');
+$growthDl         = calc_growth($downloadConversions, $priorDl, '+24.5%');
+$growthErr        = calc_growth($ingestErrors, $priorErr, '+5.0%');
 if ($ingestErrors > 0) {
     $growthErr['color'] = 'red';
 }
+
+// Phân bổ chi tiết các loại thao tác (Action Breakdown) cho Modal
+$stmtActionBreakdown = $pdo->prepare('
+    SELECT e.`event_name`, COUNT(*) as `cnt`, COUNT(DISTINCT e.`session_id`) as `sessions_cnt`,
+           COALESCE(d.`description`, "Thao tác trên website") as `description`
+    FROM `events` e
+    LEFT JOIN `event_definitions` d ON d.`website_id` = e.`website_id` AND d.`event_name` = e.`event_name`
+    WHERE e.`website_id` = ? AND e.`event_name` != "page_view" AND e.`occurred_at` BETWEEN ? AND ?
+    GROUP BY e.`event_name`, d.`description`
+    ORDER BY `cnt` DESC
+');
+$stmtActionBreakdown->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
+$actionBreakdown = $stmtActionBreakdown->fetchAll();
 
 // 2. Lấy dữ liệu biểu đồ theo Ngày hoặc 24 Khung Giờ Hôm Nay
 $viewMode = $_GET['view_mode'] ?? 'daily';
@@ -182,18 +201,19 @@ $stmtDistribution = $pdo->prepare('
 $stmtDistribution->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
 $distRows = $stmtDistribution->fetchAll();
 
-$distData = [
-    'page_view'         => 0,
-    'button_click'      => 0,
-    'download_start'    => 0,
-    'download_complete' => 0,
-];
 $totalEventCount = 0;
-foreach ($distRows as $dr) {
+$paletteColors = ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#14b8a6', '#f97316', '#6366f1'];
+$chartDonutLabels = [];
+$chartDonutData   = [];
+$chartDonutColors = [];
+
+foreach ($distRows as $idx => $dr) {
     $ename = $dr['event_name'];
-    $cnt = (int)$dr['cnt'];
-    $distData[$ename] = $cnt;
+    $cnt   = (int)$dr['cnt'];
     $totalEventCount += $cnt;
+    $chartDonutLabels[] = $ename;
+    $chartDonutData[]   = $cnt;
+    $chartDonutColors[] = $paletteColors[$idx % count($paletteColors)];
 }
 ?>
 
@@ -219,8 +239,8 @@ foreach ($distRows as $dr) {
         </svg>
     </div>
 
-    <!-- Card 2: Lần thao tác -->
-    <div class="kpi-card">
+    <!-- Card 2: Lần thao tác (Tổng hợp mọi tương tác & sự kiện) -->
+    <div class="kpi-card" style="cursor:pointer;" onclick="openModal('modal-action-breakdown')" title="Bấm để xem phân loại chi tiết các thao tác của người dùng">
         <div class="kpi-top-row">
             <div class="kpi-icon-box green">
                 <?= render_icon('mouse-pointer-click', '', 20) ?>
@@ -231,8 +251,11 @@ foreach ($distRows as $dr) {
             </span>
         </div>
         <div class="kpi-value"><?= number_format($totalActions) ?></div>
-        <div class="kpi-title">Lần thao tác</div>
-        <div class="kpi-sub">Nút bấm &amp; tải tài liệu</div>
+        <div class="kpi-title" style="display:flex; align-items:center; justify-content:space-between;">
+            <span>Lần thao tác</span>
+            <span style="font-size:0.7rem; color:var(--primary); font-weight:600; text-decoration:underline;">Chi tiết ↗</span>
+        </div>
+        <div class="kpi-sub">Tất cả tương tác &amp; hành động</div>
         <svg class="kpi-sparkline-wave" viewBox="0 0 200 40" preserveAspectRatio="none">
             <path d="M0,22 C30,10 70,32 110,18 C150,8 175,25 200,12" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
@@ -257,20 +280,20 @@ foreach ($distRows as $dr) {
         </svg>
     </div>
 
-    <!-- Card 4: Hoàn tất tải file -->
-    <div class="kpi-card">
+    <!-- Card 4: Thao tác / Phiên (Mức độ tương tác trung bình) -->
+    <div class="kpi-card" title="Số hành động tương tác trung bình của người dùng trên mỗi phiên truy cập">
         <div class="kpi-top-row">
             <div class="kpi-icon-box orange">
-                <?= render_icon('download', '', 20) ?>
+                <?= render_icon('activity', '', 20) ?>
             </div>
-            <span class="kpi-growth-badge <?= $growthDl['color'] ?>">
-                <?= render_icon($growthDl['is_up'] ? 'arrow-up' : 'arrow-down', '', 11) ?>
-                <?= $growthDl['val'] ?>
+            <span class="kpi-growth-badge <?= $growthEngagement['color'] ?>">
+                <?= render_icon($growthEngagement['is_up'] ? 'arrow-up' : 'arrow-down', '', 11) ?>
+                <?= $growthEngagement['val'] ?>
             </span>
         </div>
-        <div class="kpi-value"><?= number_format($downloadConversions) ?></div>
-        <div class="kpi-title">Hoàn tất tải file</div>
-        <div class="kpi-sub">Chuỗi <code>download_complete</code></div>
+        <div class="kpi-value"><?= number_format($actionsPerSession, 1) ?></div>
+        <div class="kpi-title">Thao tác / Phiên</div>
+        <div class="kpi-sub">Mức độ tương tác trung bình</div>
         <svg class="kpi-sparkline-wave" viewBox="0 0 200 40" preserveAspectRatio="none">
             <path d="M0,20 C40,28 75,12 115,22 C155,30 180,10 200,15" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
@@ -480,48 +503,25 @@ foreach ($distRows as $dr) {
                 </div>
 
                 <div class="donut-legend-list">
-                    <?php
-                    $pvCount = $distData['page_view'] ?? 0;
-                    $bcCount = $distData['button_click'] ?? 0;
-                    $dsCount = $distData['download_start'] ?? 0;
-                    $dcCount = $distData['download_complete'] ?? 0;
-
-                    $pvPct = $totalEventCount > 0 ? round(($pvCount / $totalEventCount) * 100, 1) : 0;
-                    $bcPct = $totalEventCount > 0 ? round(($bcCount / $totalEventCount) * 100, 1) : 0;
-                    $dsPct = $totalEventCount > 0 ? round(($dsCount / $totalEventCount) * 100, 1) : 0;
-                    $dcPct = $totalEventCount > 0 ? round(($dcCount / $totalEventCount) * 100, 1) : 0;
-                    ?>
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-left">
-                            <span class="donut-dot" style="background:#2563eb;"></span>
-                            <span>Page View</span>
-                        </div>
-                        <span class="donut-legend-val"><?= $pvCount ?> (<?= $pvPct ?>%)</span>
-                    </div>
-
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-left">
-                            <span class="donut-dot" style="background:#10b981;"></span>
-                            <span>Button Click</span>
-                        </div>
-                        <span class="donut-legend-val"><?= $bcCount ?> (<?= $bcPct ?>%)</span>
-                    </div>
-
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-left">
-                            <span class="donut-dot" style="background:#f59e0b;"></span>
-                            <span>Download Start</span>
-                        </div>
-                        <span class="donut-legend-val"><?= $dsCount ?> (<?= $dsPct ?>%)</span>
-                    </div>
-
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-left">
-                            <span class="donut-dot" style="background:#8b5cf6;"></span>
-                            <span>Download Complete</span>
-                        </div>
-                        <span class="donut-legend-val"><?= $dcCount ?> (<?= $dcPct ?>%)</span>
-                    </div>
+                    <?php if (empty($distRows)): ?>
+                        <div style="font-size:0.82rem; color:var(--text-muted); padding:1rem 0;">Chưa có dữ liệu sự kiện</div>
+                    <?php else: ?>
+                        <?php foreach ($distRows as $idx => $dr): ?>
+                            <?php 
+                            $ename = $dr['event_name'];
+                            $cnt = (int)$dr['cnt'];
+                            $pct = $totalEventCount > 0 ? round(($cnt / $totalEventCount) * 100, 1) : 0;
+                            $color = $paletteColors[$idx % count($paletteColors)];
+                            ?>
+                            <div class="donut-legend-item">
+                                <div class="donut-legend-left">
+                                    <span class="donut-dot" style="background:<?= $color ?>;"></span>
+                                    <span style="font-family:monospace; font-size:0.8rem;"><?= e($ename) ?></span>
+                                </div>
+                                <span class="donut-legend-val"><?= number_format($cnt) ?> (<?= $pct ?>%)</span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -631,20 +631,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 2. Biểu đồ Donut Phân bổ loại sự kiện
+    // 2. Biểu đồ Donut Phân bổ loại sự kiện (Hoàn toàn tự động theo CSDL)
     const ctxDonut = document.getElementById('eventDonutChart').getContext('2d');
     new Chart(ctxDonut, {
         type: 'doughnut',
         data: {
-            labels: ['Page View', 'Button Click', 'Download Start', 'Download Complete'],
+            labels: <?= json_encode($chartDonutLabels) ?>,
             datasets: [{
-                data: [
-                    <?= (int)$pvCount ?>,
-                    <?= (int)$bcCount ?>,
-                    <?= (int)$dsCount ?>,
-                    <?= (int)$dcCount ?>
-                ],
-                backgroundColor: ['#2563eb', '#10b981', '#f59e0b', '#8b5cf6'],
+                data: <?= json_encode($chartDonutData) ?>,
+                backgroundColor: <?= json_encode($chartDonutColors) ?>,
                 borderWidth: 0,
                 hoverOffset: 4
             }]
@@ -664,6 +659,85 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function openModal(id) {
+    const m = document.getElementById(id);
+    if (m) m.classList.add('active');
+}
+function closeModal(id) {
+    const m = document.getElementById(id);
+    if (m) m.classList.remove('active');
+}
 </script>
+
+<!-- MODAL CHI TIẾT PHÂN BỔ CÁC THAO TÁC (ACTION BREAKDOWN) -->
+<div id="modal-action-breakdown" class="modal-backdrop">
+    <div class="modal-dialog" style="max-width:620px;">
+        <div class="modal-header">
+            <h3>
+                <?= render_icon('mouse-pointer-click', '', 18, 'var(--primary)') ?>
+                Phân Bổ Chi Tiết Các Loại Thao Tác (Website #<?= $selectedWebsiteId ?>)
+            </h3>
+            <button type="button" class="modal-close-btn" onclick="closeModal('modal-action-breakdown')" aria-label="Đóng">
+                <?= render_icon('x', '', 16) ?>
+            </button>
+        </div>
+        <div class="modal-body" style="padding:1.25rem;">
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.5;">
+                Tổng hợp toàn bộ các hành động tương tác của người dùng trên website trong kỳ (loại trừ lượt xem trang <code>page_view</code>).
+            </p>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Tên Thao Tác (event_name)</th>
+                            <th>Mô Tả Nghiệp Vụ</th>
+                            <th style="text-align:right;">Số Lượt</th>
+                            <th style="text-align:right;">Tỷ Lệ</th>
+                            <th style="text-align:right;">Số Phiên</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($actionBreakdown)): ?>
+                            <tr>
+                                <td colspan="5" style="text-align:center; color:var(--text-muted); padding:1.5rem;">Chưa có thao tác nào được ghi nhận trong kỳ.</td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($actionBreakdown as $ab): ?>
+                                <?php 
+                                $abCnt = (int)$ab['cnt'];
+                                $abPct = $totalActions > 0 ? round(($abCnt / $totalActions) * 100, 1) : 0;
+                                ?>
+                                <tr>
+                                    <td>
+                                        <code style="font-weight:700; color:var(--primary);"><?= e($ab['event_name']) ?></code>
+                                    </td>
+                                    <td style="font-size:0.82rem; color:var(--text-secondary);"><?= e($ab['description']) ?></td>
+                                    <td style="text-align:right; font-weight:700;"><?= number_format($abCnt) ?></td>
+                                    <td style="text-align:right;">
+                                        <span class="badge badge-blue"><?= $abPct ?>%</span>
+                                    </td>
+                                    <td style="text-align:right; color:var(--text-secondary); font-size:0.82rem;"><?= number_format((int)$ab['sessions_cnt']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.82rem; color:var(--text-muted);">
+                Tổng cộng: <strong><?= number_format($totalActions) ?></strong> lần thao tác
+            </span>
+            <div style="display:flex; gap:0.5rem;">
+                <a href="event-logs.php?website_id=<?= $selectedWebsiteId ?>" class="btn btn-primary btn-sm">
+                    <?= render_icon('eye', '', 12) ?>
+                    Mở Toàn Bộ Nhật Ký
+                </a>
+                <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modal-action-breakdown')">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
