@@ -42,7 +42,7 @@ foreach ($eventCountsRaw as $er) {
 }
 
 // Lấy thêm các sự kiện đã khai báo trong event_definitions (kể cả sự kiện mới chưa phát sinh dữ liệu)
-$stmtDefs = $pdo->prepare('SELECT `event_name` FROM `event_definitions` WHERE `website_id` = ? AND `status` = "enabled" ORDER BY `event_name` ASC');
+$stmtDefs = $pdo->prepare('SELECT `event_name` FROM `event_definitions` WHERE `website_id` = ? AND `enabled` = 1 ORDER BY `event_name` ASC');
 $stmtDefs->execute([$selectedWebsiteId]);
 $definedEvents = $stmtDefs->fetchAll(PDO::FETCH_COLUMN);
 
