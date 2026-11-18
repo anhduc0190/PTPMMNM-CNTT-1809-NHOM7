@@ -162,25 +162,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isAdmin) {
     </div>
 </div>
 
-<!-- MÃ HƯỚNG DẪN GẮN TRACKING SDK -->
-<div class="card-section">
-    <div class="card-title-bar">
-        <h3>
-            <?= render_icon('code', '', 18, 'var(--primary)') ?>
-            Hướng Dẫn Tích Hợp JavaScript SDK Vào Website
-        </h3>
-    </div>
-    <p style="color:var(--text-secondary); margin-bottom:1rem; font-size:0.88rem; line-height:1.5;">
-        Sao chép đoạn mã sau và dán vào phần trước thẻ đóng <code>&lt;/body&gt;</code> của trang web bạn muốn theo dõi:
-    </p>
-    <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:var(--radius-md); font-size:0.85rem; overflow-x:auto; border:1px solid #1e293b; line-height:1.6;">
-&lt;!-- WEB TRACKING SDK ĐỀ TÀI 17 --&gt;
-&lt;script src="<?= $baseUrl ?>/sdk/tracker.js"
-        data-tracking-key="&lt;YOUR_TRACKING_KEY&gt;"
-        data-api-endpoint="<?= $baseUrl ?>/api/track.php"&gt;
-&lt;/script&gt;</pre>
-</div>
-
 <!-- MODAL THÊM WEBSITE -->
 <?php if ($isAdmin): ?>
 <div id="modal-create" class="modal-backdrop">
