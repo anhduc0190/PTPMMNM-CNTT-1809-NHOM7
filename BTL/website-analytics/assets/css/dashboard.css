@@ -437,6 +437,141 @@ body {
     font-size: 0.82rem;
     font-weight: 600;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+    outline: none;
+}
+.pill-date-range:hover {
+    border-color: #2563eb;
+    background: #f8fafc;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+/* Date Popover Menu in Top Header */
+.date-popover-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.date-popover-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 320px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.15), 0 4px 10px rgba(15, 23, 42, 0.06);
+    padding: 1rem;
+    z-index: 1000;
+    display: none;
+}
+.date-popover-menu.show {
+    display: block;
+    animation: popoverFadeIn 0.18s ease-out;
+}
+@keyframes popoverFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.popover-section-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.popover-presets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.popover-preset-btn {
+    padding: 0.45rem 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s ease;
+}
+.popover-preset-btn:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1d4ed8;
+}
+.popover-preset-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.popover-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 0.75rem 0;
+}
+
+.popover-custom-inputs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.popover-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.popover-field label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #64748b;
+}
+.popover-field input[type="date"] {
+    width: 100%;
+    height: 34px;
+    padding: 0 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #1e293b;
+    outline: none;
+    background: #ffffff;
+}
+.popover-field input[type="date"]:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.btn-popover-apply {
+    width: 100%;
+    height: 36px;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.btn-popover-apply:hover {
+    background: #1d4ed8;
 }
 
 /* ====================================================================
@@ -458,15 +593,22 @@ body {
     flex-wrap: wrap;
 }
 
-.filter-website-label {
-    font-size: 0.85rem;
+.filter-item-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.filter-website-label, .filter-label {
+    font-size: 0.84rem;
     font-weight: 600;
     color: var(--text-muted);
+    white-space: nowrap;
 }
 
 .filter-website-select {
     height: 38px;
-    padding: 0 2rem 0 1rem;
+    padding: 0 2rem 0 0.85rem;
     border: 1px solid var(--border-color);
     border-radius: 9px;
     background: #ffffff;
@@ -476,7 +618,7 @@ body {
     outline: none;
     cursor: pointer;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-    min-width: 260px;
+    min-width: 220px;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -485,6 +627,57 @@ body {
 }
 .filter-website-select:focus {
     border-color: var(--primary);
+}
+
+.filter-preset-select {
+    height: 38px;
+    padding: 0 1.85rem 0 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    background: #ffffff;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    min-width: 145px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    transition: border-color 0.15s;
+}
+.filter-preset-select:focus {
+    border-color: var(--primary);
+}
+
+.filter-dates-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 9px;
+    padding: 0 0.6rem;
+    height: 38px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.filter-date-input {
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.83rem;
+    font-family: inherit;
+    outline: none;
+    height: 32px;
+    padding: 0 0.2rem;
+    cursor: pointer;
+}
+.filter-date-input:focus {
+    color: #2563eb;
+    font-weight: 600;
 }
 
 .btn-filter-submit {
