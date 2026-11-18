@@ -461,3 +461,135 @@ footer {
     padding-top: 0.65rem;
     border-top: 1px solid #e2e8f0;
 }
+
+/* ====================================================================
+   CUSTOM EVENT DISPATCHER IN SANDBOX
+   ==================================================================== */
+.sandbox-custom-dispatcher {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 1.1rem;
+    margin: 1.25rem 0;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+}
+.dispatcher-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+.dispatcher-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+.dispatcher-desc {
+    font-size: 0.83rem;
+    color: #64748b;
+    margin-bottom: 0.85rem;
+    line-height: 1.5;
+}
+.dispatcher-row {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin-bottom: 0.85rem;
+}
+.sb-custom-select {
+    flex: 1.2;
+    min-width: 220px;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    background: #ffffff;
+    color: #1e293b;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.sb-custom-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.sb-custom-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.sb-custom-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+.btn-sb-fire {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.btn-sb-fire:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+.btn-sb-reload {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-sb-reload:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+.dispatcher-result {
+    font-size: 0.84rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    line-height: 1.5;
+}
+.dispatcher-result.success {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+.dispatcher-result.error {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+.dispatcher-result.loading {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #64748b;
+}

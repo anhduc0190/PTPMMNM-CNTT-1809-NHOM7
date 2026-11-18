@@ -52,6 +52,8 @@ $stmt = $pdo->prepare('
 ');
 $stmt->execute([$selectedWebsiteId]);
 $definitions = $stmt->fetchAll();
+
+$demoSiteUrl = ($selectedWebsiteId == 2) ? 'demo-sites/site-b/index.html' : 'demo-sites/site-a/index.html';
 ?>
 
 <?php if ($notice): ?>
@@ -60,6 +62,32 @@ $definitions = $stmt->fetchAll();
         <?= e($notice['msg']) ?>
     </div>
 <?php endif; ?>
+
+<!-- HƯỚNG DẪN THAO TÁC BÁO CÁO VỚI GIẢNG VIÊN -->
+<div style="background:linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%); border:1px solid #bbf7d0; border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem;">
+    <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem;">
+        <?= render_icon('help-circle', '', 18, '#16a34a') ?>
+        <strong style="color:#166534; font-size:0.92rem;">Quy Trình Khai Báo &amp; Thao Tác Thử Nghiệm Sự Kiện Trên Trang Web Demo (Dành Cho Buổi Báo Cáo):</strong>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; font-size:0.83rem; color:#1e293b;">
+        <div style="background:#ffffff; padding:0.75rem; border-radius:6px; border:1px solid #e2e8f0; line-height:1.5;">
+            <div style="font-weight:700; color:#2563eb; margin-bottom:0.25rem;">1. Khai báo sự kiện mới</div>
+            Bấm <strong>"+ Thêm Sự Kiện Mới"</strong> và nhập tên (ví dụ: <code>xemchitiet_laptop</code>, <code>dat_hang_thanh_cong</code>). Sự kiện vừa tạo mặc định ở trạng thái <strong>Đang Bật</strong>.
+        </div>
+        <div style="background:#ffffff; padding:0.75rem; border-radius:6px; border:1px solid #e2e8f0; line-height:1.5;">
+            <div style="font-weight:700; color:#2563eb; margin-bottom:0.25rem;">2. Gắn vào trang web / Thử nghiệm</div>
+            Bấm nút <strong>"Thử trên Demo ↗"</strong> tại dòng sự kiện &rarr; Trang web Demo mở ra và tự động điền sẵn tên sự kiện vào <em>Bộ Kích Hoạt Sự Kiện Khai Báo</em>.
+        </div>
+        <div style="background:#ffffff; padding:0.75rem; border-radius:6px; border:1px solid #e2e8f0; line-height:1.5;">
+            <div style="font-weight:700; color:#2563eb; margin-bottom:0.25rem;">3. Bắn sự kiện &amp; Xem CSDL</div>
+            Bấm <strong>"Bắn Sự Kiện Này"</strong> trên Demo &rarr; Hệ thống phản hồi <code>HTTP 201 Created</code>. Số liệu trên <strong>Dashboard</strong> và bảng <strong>Nhật Ký Sự Kiện</strong> nhảy tăng tức thì.
+        </div>
+        <div style="background:#ffffff; padding:0.75rem; border-radius:6px; border:1px solid #e2e8f0; line-height:1.5;">
+            <div style="font-weight:700; color:#dc2626; margin-bottom:0.25rem;">4. Biểu diễn Chống Gian Lận</div>
+            Bấm <strong>"Vô hiệu hoá"</strong> sự kiện này tại đây, rồi quay lại trang Demo bắn lại &rarr; Hệ thống lập tức từ chối với mã <code>EVENT_NOT_DEFINED (HTTP 400)</code> và ghi log lỗi!
+        </div>
+    </div>
+</div>
 
 <div class="card-section">
     <div class="card-title-bar">
@@ -83,12 +111,12 @@ $definitions = $stmt->fetchAll();
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width:70px;">ID</th>
+                    <th style="width:60px;">ID</th>
                     <th>Tên Sự Kiện (event_name)</th>
                     <th>Mô Tả Nghiệp Vụ</th>
-                    <th>Ngày Khai Báo</th>
-                    <th>Trạng Thái</th>
-                    <?php if ($canManage): ?><th>Hành Động</th><?php endif; ?>
+                    <th>Mã Nhúng Vào Nút Website (HTML / JS)</th>
+                    <th style="width:110px;">Trạng Thái</th>
+                    <th style="width:230px;">Hành Động &amp; Thử Nghiệm</th>
                 </tr>
             </thead>
             <tbody>
@@ -96,10 +124,27 @@ $definitions = $stmt->fetchAll();
                     <tr>
                         <td><strong>#<?= $def['definition_id'] ?></strong></td>
                         <td>
-                            <code><?= e($def['event_name']) ?></code>
+                            <code style="font-weight:700; color:var(--primary); font-size:0.86rem;"><?= e($def['event_name']) ?></code>
                         </td>
-                        <td><?= e($def['description'] ?? 'Không có mô tả') ?></td>
-                        <td><?= date('d/m/Y H:i', strtotime($def['created_at'])) ?></td>
+                        <td style="color:var(--text-secondary);"><?= e($def['description'] ?? 'Không có mô tả') ?></td>
+                        <td>
+                            <div style="display:flex; flex-direction:column; gap:4px;">
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-secondary); width:32px;">HTML:</span>
+                                    <code style="font-size:0.75rem; background:#f1f5f9; padding:2px 6px; border-radius:4px; border:1px solid #e2e8f0; color:#0f172a;">data-track-event="<?= e($def['event_name']) ?>"</code>
+                                    <button type="button" class="btn btn-outline btn-sm" style="padding:2px 5px; height:24px; line-height:1;" onclick="copyCode('data-track-event=&quot;<?= e($def['event_name']) ?>&quot;', this)" title="Sao chép thuộc tính HTML">
+                                        <?= render_icon('copy', '', 12) ?>
+                                    </button>
+                                </div>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <span style="font-size:0.72rem; font-weight:700; color:var(--text-secondary); width:32px;">JS:</span>
+                                    <code style="font-size:0.75rem; background:#f1f5f9; padding:2px 6px; border-radius:4px; border:1px solid #e2e8f0; color:#0f172a;">WebTracker.track('<?= e($def['event_name']) ?>')</code>
+                                    <button type="button" class="btn btn-outline btn-sm" style="padding:2px 5px; height:24px; line-height:1;" onclick="copyCode('WebTracker.track(\'<?= e($def['event_name']) ?>\')', this)" title="Sao chép hàm JS">
+                                        <?= render_icon('copy', '', 12) ?>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
                         <td>
                             <?php if ($def['enabled']): ?>
                                 <span class="badge badge-green">
@@ -113,28 +158,34 @@ $definitions = $stmt->fetchAll();
                                 </span>
                             <?php endif; ?>
                         </td>
-                        <?php if ($canManage): ?>
-                            <td>
-                                <form method="POST" style="display:inline;">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="action" value="toggle">
-                                    <input type="hidden" name="def_id" value="<?= $def['definition_id'] ?>">
-                                    <?php if ($def['enabled']): ?>
-                                        <input type="hidden" name="enabled" value="0">
-                                        <button type="submit" class="btn btn-outline btn-sm" style="color:var(--accent-red-text); border-color:var(--accent-red-border);">
-                                            <?= render_icon('pause', '', 11) ?>
-                                            Vô hiệu hoá
-                                        </button>
-                                    <?php else: ?>
-                                        <input type="hidden" name="enabled" value="1">
-                                        <button type="submit" class="btn btn-outline btn-sm" style="color:var(--accent-green-text); border-color:var(--accent-green-border);">
-                                            <?= render_icon('play', '', 11) ?>
-                                            Kích hoạt
-                                        </button>
-                                    <?php endif; ?>
-                                </form>
-                            </td>
-                        <?php endif; ?>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                <?php if ($canManage): ?>
+                                    <form method="POST" style="display:inline; margin:0;">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="action" value="toggle">
+                                        <input type="hidden" name="def_id" value="<?= $def['definition_id'] ?>">
+                                        <?php if ($def['enabled']): ?>
+                                            <input type="hidden" name="enabled" value="0">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="color:var(--accent-red-text); border-color:var(--accent-red-border);" title="Tạm dừng tiếp nhận sự kiện này">
+                                                <?= render_icon('pause', '', 11) ?>
+                                                Vô hiệu hoá
+                                            </button>
+                                        <?php else: ?>
+                                            <input type="hidden" name="enabled" value="1">
+                                            <button type="submit" class="btn btn-outline btn-sm" style="color:var(--accent-green-text); border-color:var(--accent-green-border);" title="Kích hoạt lại sự kiện này">
+                                                <?= render_icon('play', '', 11) ?>
+                                                Kích hoạt
+                                            </button>
+                                        <?php endif; ?>
+                                    </form>
+                                <?php endif; ?>
+                                <a href="<?= $demoSiteUrl ?>?test_event=<?= urlencode($def['event_name']) ?>" target="_blank" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:4px;" title="Mở trang Demo và thử nghiệm bắn sự kiện này ngay lập tức">
+                                    <?= render_icon('external-link', '', 11) ?>
+                                    Thử trên Demo
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -192,6 +243,25 @@ function openModal(id) {
 function closeModal(id) {
     const m = document.getElementById(id);
     if (m) m.classList.remove('active');
+}
+function copyCode(text, btn) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<?= render_icon('check', '', 12, '#16a34a') ?>';
+            setTimeout(function() { btn.innerHTML = orig; }, 1500);
+        });
+    } else {
+        var input = document.createElement('input');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        var orig = btn.innerHTML;
+        btn.innerHTML = '<?= render_icon('check', '', 12, '#16a34a') ?>';
+        setTimeout(function() { btn.innerHTML = orig; }, 1500);
+    }
 }
 </script>
 

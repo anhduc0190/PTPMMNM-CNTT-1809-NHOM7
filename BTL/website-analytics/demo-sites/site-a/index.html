@@ -36,12 +36,19 @@
         <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Sản Phẩm Nổi Bật</h2>
         <div class="card-grid">
             <div class="card">
-                <h3>Laptop Pro Ultrabook 14"</h3>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <h3>Laptop Pro Ultrabook 14"</h3>
+                    <span style="font-size:0.72rem; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; border-radius:4px; padding:2px 6px; font-weight:600;">Sự kiện riêng</span>
+                </div>
                 <p>Hiệu năng vượt trội với chip thế hệ mới, màn hình 2.8K OLED siêu nét, pin dùng 18 giờ liên tục.</p>
                 <div class="price">24.990.000 đ</div>
-                <div style="display:flex; gap:0.5rem;">
-                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-view-ultrabook">Xem chi tiết</a>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <a href="product-detail.html" class="btn" data-track-click data-track-id="btn-view-ultrabook" data-track-event="xemchitiet_laptop">Xem chi tiết</a>
                     <button class="btn btn-dark" data-track-click data-track-id="btn-cart-ultrabook">Thêm vào giỏ</button>
+                </div>
+                <div style="margin-top:0.6rem; font-size:0.75rem; color:#1e40af; background:#eff6ff; padding:4px 8px; border-radius:4px; border:1px solid #bfdbfe; display:inline-flex; align-items:center; gap:4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                    <span>Gắn sự kiện: <code>data-track-event="xemchitiet_laptop"</code></span>
                 </div>
             </div>
 
@@ -71,7 +78,7 @@
             <div class="sandbox-header">
                 <div class="sandbox-title">
                     <span class="sandbox-badge">Bảng Thử Nghiệm</span>
-                    <h3>Kiểm Thử "Phiên Hoạt Động" & "Lỗi Tiếp Nhận / Xung Đột"</h3>
+                    <h3>Kiểm Thử "Phiên Hoạt Động", "Sự Kiện Khai Báo" &amp; "Xung Đột"</h3>
                 </div>
                 <div class="sandbox-session-info">
                     <span>Session ID hiện tại:</span>
@@ -100,6 +107,34 @@
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     Mô Phỏng Sự Kiện Lạ Chưa Khai Báo (HTTP 400)
                 </button>
+            </div>
+
+            <!-- BỘ KÍCH HOẠT SỰ KIỆN KHAI BÁO (CUSTOM EVENT DISPATCHER & TESTER) -->
+            <div class="sandbox-custom-dispatcher" id="sandbox-custom-dispatcher">
+                <div class="dispatcher-header">
+                    <div class="dispatcher-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                        Kích Hoạt Sự Kiện Khai Báo (Custom Event Dispatcher)
+                    </div>
+                    <button type="button" class="btn-sb-reload" id="btn-sb-reload" title="Tải lại danh sách sự kiện mới nhất từ CSDL">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+                        Làm Mới Danh Sách Sự Kiện
+                    </button>
+                </div>
+                <p class="dispatcher-desc">
+                    Chọn sự kiện đã khai báo từ CSDL hoặc tự nhập tên sự kiện bất kỳ (ví dụ: <code>xemchitiet_laptop</code>, <code>dat_hang_thanh_cong</code>) để kiểm thử luồng ghi nhận CSDL hoặc chính sách chặn sự kiện chưa khai báo / đã bị tắt:
+                </p>
+                <div class="dispatcher-row">
+                    <select id="sb-custom-event-select" class="sb-custom-select">
+                        <option value="">-- Đang tải danh sách sự kiện từ CSDL... --</option>
+                    </select>
+                    <input type="text" id="sb-custom-event-input" class="sb-custom-input" placeholder="Hoặc gõ tên sự kiện tùy ý..." />
+                    <button type="button" class="btn-sb-fire" id="btn-fire-custom-event">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+                        Bắn Sự Kiện Này
+                    </button>
+                </div>
+                <div id="sb-custom-event-result" class="dispatcher-result" style="display:none;"></div>
             </div>
 
             <!-- BẢNG ĐỐI CHIẾU XUNG ĐỘT TRỰC QUAN (CONFLICT INSPECTOR) -->
@@ -183,9 +218,156 @@
             document.addEventListener('click', function(e) {
                 var btn = e.target.closest('[data-track-click]');
                 if (btn) {
-                    showToast('Đã gửi sự kiện <b>button_click</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
+                    var evName = btn.getAttribute('data-track-event') || 'button_click';
+                    showToast('Đã gửi sự kiện <b>' + evName + '</b>: ' + (btn.getAttribute('data-track-id') || btn.innerText));
                 }
             });
+
+            // 1.1. Bộ Kích Hoạt Sự Kiện Khai Báo (Custom Event Dispatcher)
+            var eventSelect = document.getElementById('sb-custom-event-select');
+            var eventInput = document.getElementById('sb-custom-event-input');
+            var btnFireCustom = document.getElementById('btn-fire-custom-event');
+            var btnReloadEvents = document.getElementById('btn-sb-reload');
+            var resultBox = document.getElementById('sb-custom-event-result');
+            var trackingKeySiteA = 'trk_site_a_alpha_shop_2026';
+
+            function loadEventDefinitions() {
+                if (!eventSelect) return;
+                fetch('../../api/event-definitions.php?tracking_key=' + encodeURIComponent(trackingKeySiteA))
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) {
+                        if (data.success && Array.isArray(data.definitions)) {
+                            eventSelect.innerHTML = '<option value="">-- Chọn sự kiện trong CSDL (' + data.definitions.length + ' sự kiện) --</option>';
+                            data.definitions.forEach(function(d) {
+                                var isEnabled = (d.enabled == 1);
+                                var statusText = isEnabled ? ' [Đang Bật]' : ' [Đang Tắt]';
+                                var opt = document.createElement('option');
+                                opt.value = d.event_name;
+                                opt.textContent = d.event_name + statusText + (d.description ? ' - ' + d.description : '');
+                                if (!isEnabled) {
+                                    opt.style.color = '#dc2626';
+                                }
+                                eventSelect.appendChild(opt);
+                            });
+                            checkUrlParam();
+                        }
+                    }).catch(function() {
+                        eventSelect.innerHTML = '<option value="">-- Chọn sự kiện có sẵn --</option>' +
+                            '<option value="page_view">page_view [Đang Bật]</option>' +
+                            '<option value="button_click">button_click [Đang Bật]</option>' +
+                            '<option value="download_start">download_start [Đang Bật]</option>' +
+                            '<option value="download_complete">download_complete [Đang Bật]</option>' +
+                            '<option value="xemchitiet_laptop">xemchitiet_laptop [Đang Bật]</option>';
+                        checkUrlParam();
+                    });
+            }
+
+            function checkUrlParam() {
+                var params = new URLSearchParams(window.location.search);
+                var testEvent = params.get('test_event');
+                if (testEvent) {
+                    if (eventInput) eventInput.value = testEvent;
+                    if (eventSelect) eventSelect.value = testEvent;
+                    var dispatcherEl = document.getElementById('sandbox-custom-dispatcher');
+                    if (dispatcherEl) {
+                        dispatcherEl.scrollIntoView({ behavior: 'smooth' });
+                        dispatcherEl.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.35)';
+                    }
+                }
+            }
+
+            if (eventSelect) {
+                eventSelect.addEventListener('change', function() {
+                    if (eventSelect.value && eventInput) {
+                        eventInput.value = eventSelect.value;
+                    }
+                });
+            }
+
+            if (btnReloadEvents) {
+                btnReloadEvents.addEventListener('click', function() {
+                    btnReloadEvents.innerText = 'Đang tải lại...';
+                    loadEventDefinitions();
+                    setTimeout(function() {
+                        btnReloadEvents.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg> Làm Mới Danh Sách Sự Kiện';
+                    }, 500);
+                });
+            }
+
+            if (btnFireCustom) {
+                btnFireCustom.addEventListener('click', function() {
+                    var evName = ((eventInput ? eventInput.value : '') || (eventSelect ? eventSelect.value : '')).trim();
+                    if (!evName) {
+                        alert('Vui lòng chọn hoặc gõ tên sự kiện cần bắn!');
+                        return;
+                    }
+
+                    if (resultBox) {
+                        resultBox.style.display = 'block';
+                        resultBox.className = 'dispatcher-result loading';
+                        resultBox.innerHTML = '⏳ Đang gửi sự kiện <code>' + evName + '</code> lên hệ thống qua API...';
+                    }
+
+                    var payload = {
+                        tracking_key: trackingKeySiteA,
+                        event_id: 'evt_custom_' + Date.now(),
+                        session_id: window.WebTracker ? window.WebTracker.getSessionId() : 'sess_manual',
+                        event_name: evName,
+                        page_path: window.location.pathname,
+                        occurred_at: new Date().toISOString(),
+                        properties: {
+                            element_id: 'sandbox_custom_dispatcher',
+                            item_name: 'Kiểm thử sự kiện khai báo',
+                            triggered_source: 'sandbox_ui'
+                        }
+                    };
+
+                    fetch('../../api/track.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Tracking-Key': trackingKeySiteA },
+                        body: JSON.stringify(payload)
+                    }).then(function(res) {
+                        return res.json().then(function(data) {
+                            if (res.status === 201 || res.status === 200) {
+                                if (resultBox) {
+                                    resultBox.className = 'dispatcher-result success';
+                                    resultBox.innerHTML = '🟢 <b>THÀNH CÔNG (HTTP 201 Created):</b> Sự kiện <code>' + evName + '</code> đã được hệ thống tiếp nhận và lưu vào CSDL (bảng <code>events</code>)!<br>' +
+                                        'Số liệu trên <b>Dashboard</b> (Card "Tổng Thao Tác", biểu đồ) đã tăng ngay lập tức. ' +
+                                        '<a href="../../dashboard.php" target="_blank" class="sb-link" style="margin-left:8px;">Mở Dashboard Xem Tức Thì ↗</a> ' +
+                                        '<a href="../../event-logs.php" target="_blank" class="sb-link" style="margin-left:8px;">Mở Nhật Ký Sự Kiện ↗</a>';
+                                }
+                                showToast('🟢 Sự kiện <b>' + evName + '</b> đã được ghi vào CSDL thành công (HTTP 201)!', '#10b981');
+                                statusLabel.innerText = 'HTTP 201 Created: ' + evName;
+                                statusLabel.style.color = '#10b981';
+                            } else if (res.status === 400 && data.error === 'EVENT_NOT_DEFINED') {
+                                if (resultBox) {
+                                    resultBox.className = 'dispatcher-result error';
+                                    resultBox.innerHTML = '🔴 <b>BỊ TỪ CHỐI (HTTP 400 Bad Request: EVENT_NOT_DEFINED):</b> Sự kiện <code>' + evName + '</code> chưa được khai báo hoặc đang bị <b>Vô hiệu hoá (Tắt)</b> trong CSDL!<br>' +
+                                        'Hệ thống đã tự động ghi log lỗi vào bảng <code>event_ingest_errors</code> để bảo vệ tính toàn vẹn dữ liệu. ' +
+                                        '<a href="../../event-definitions.php" target="_blank" class="sb-link" style="color:#b91c1c; margin-left:8px;">Vào Quản Trị Bật Sự Kiện ↗</a> ' +
+                                        '<a href="../../event-logs.php?tab=errors" target="_blank" class="sb-link" style="color:#b91c1c; margin-left:8px;">Xem Nhật Ký Lỗi Tiếp Nhận ↗</a>';
+                                }
+                                showToast('🚫 Sự kiện <b>' + evName + '</b> bị từ chối (HTTP 400: EVENT_NOT_DEFINED)!', '#dc2626');
+                                statusLabel.innerText = 'HTTP 400 Bad Request: EVENT_NOT_DEFINED (' + evName + ')';
+                                statusLabel.style.color = '#dc2626';
+                            } else {
+                                if (resultBox) {
+                                    resultBox.className = 'dispatcher-result error';
+                                    resultBox.innerHTML = '⚠️ <b>Phản hồi HTTP ' + res.status + ':</b> ' + (data.message || data.error || 'Lỗi không xác định');
+                                }
+                                statusLabel.innerText = 'HTTP ' + res.status;
+                            }
+                        });
+                    }).catch(function(err) {
+                        if (resultBox) {
+                            resultBox.className = 'dispatcher-result error';
+                            resultBox.innerHTML = 'Lỗi kết nối: ' + err.message;
+                        }
+                    });
+                });
+            }
+
+            loadEventDefinitions();
 
             // 2. Nút Tạo Phiên Mới
             var btnNewSession = document.getElementById('btn-sb-new-session');

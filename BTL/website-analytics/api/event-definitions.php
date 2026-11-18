@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // ====================================================================
 // REST API: QUAN LY DINH NGHIA SU KIEN (api/event-definitions.php)
 // ====================================================================
@@ -11,11 +11,41 @@ require_once __DIR__ . '/../includes/permissions.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
 header('Content-Type: application/json; charset=utf-8');
+
+$pdo  = get_db_connection();
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Cho phep Demo Sites hoac Client SDK lay danh sach su kien thong qua tracking_key
+$trackingKey = trim($_GET['tracking_key'] ?? $_SERVER['HTTP_X_TRACKING_KEY'] ?? '');
+if ($method === 'GET' && !empty($trackingKey)) {
+    $stmtSite = $pdo->prepare('SELECT `website_id`, `name`, `status` FROM `websites` WHERE `tracking_key` = ? LIMIT 1');
+    $stmtSite->execute([$trackingKey]);
+    $site = $stmtSite->fetch();
+    if (!$site || $site['status'] !== 'active') {
+        json_response(['success' => false, 'error' => 'INVALID_TRACKING_KEY', 'message' => 'Tracking key khong hop le hoac website chua kich hoat.'], 403);
+    }
+
+    $websiteId = (int)$site['website_id'];
+    $stmt = $pdo->prepare('
+        SELECT `definition_id`, `website_id`, `event_name`, `description`, `enabled`, `created_at`
+        FROM `event_definitions`
+        WHERE `website_id` = ?
+        ORDER BY `definition_id` ASC
+    ');
+    $stmt->execute([$websiteId]);
+    $definitions = $stmt->fetchAll();
+
+    json_response([
+        'success'      => true,
+        'website_id'   => $websiteId,
+        'website_name' => $site['name'],
+        'definitions'  => $definitions
+    ]);
+}
+
 require_login();
 
 $user = get_auth_user();
-$pdo  = get_db_connection();
-$method = $_SERVER['REQUEST_METHOD'];
 
 // GET: Lay danh sach event definitions cua 1 website
 if ($method === 'GET') {
