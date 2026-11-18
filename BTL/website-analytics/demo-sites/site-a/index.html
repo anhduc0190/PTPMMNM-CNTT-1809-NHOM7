@@ -101,6 +101,39 @@
                     Mô Phỏng Sự Kiện Lạ Chưa Khai Báo (HTTP 400)
                 </button>
             </div>
+
+            <!-- BẢNG ĐỐI CHIẾU XUNG ĐỘT TRỰC QUAN (CONFLICT INSPECTOR) -->
+            <div id="conflict-inspector-box" class="conflict-inspector-box" style="display:none;">
+                <div class="inspector-header">
+                    <span class="inspector-badge badge-conflict" id="ci-badge">Phát Hiện Xung Đột Dữ Liệu (HTTP 409 Conflict)</span>
+                    <span class="inspector-event-id">Event ID: <strong id="ci-event-id">-</strong></span>
+                </div>
+                <div class="inspector-grid">
+                    <div class="inspector-col orig-col">
+                        <div class="col-title" id="ci-col1-title">🟢 Lần 1: Sự Kiện Gốc Hợp Lệ (Đã Lưu Vào DB)</div>
+                        <div class="col-body">
+                            <div><strong>Trạng thái:</strong> <span class="badge-status-ok" id="ci-col1-status">HTTP 201 Created</span></div>
+                            <div><strong>Sự kiện:</strong> <code id="ci-col1-event">button_click</code></div>
+                            <div><strong>Nội dung Payload (Gốc):</strong></div>
+                            <pre style="margin:0;"><code id="ci-col1-payload">...</code></pre>
+                        </div>
+                    </div>
+                    <div class="inspector-col tampered-col">
+                        <div class="col-title" id="ci-col2-title">🔴 Lần 2: Cố Tình Gửi Trùng ID Nhưng Sửa Dữ Liệu</div>
+                        <div class="col-body">
+                            <div><strong>Trạng thái:</strong> <span class="badge-status-err" id="ci-col2-status">HTTP 409 Conflict</span></div>
+                            <div><strong>Cùng Event ID:</strong> <code id="ci-col2-eventid">...</code></div>
+                            <div><strong>Nội dung Bị Sửa Đổi:</strong></div>
+                            <pre style="margin:0;"><code id="ci-col2-payload">...</code></pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="inspector-footer">
+                    <span id="ci-footer-desc">⚡ <strong>Tại sao xung đột:</strong> Cùng Event ID nhưng nội dung bị can thiệp khiến mã băm SHA-256 bị lệch. API chặn ghi đè để bảo vệ toàn vẹn dữ liệu.</span>
+                    <a href="../../event-logs.php?tab=errors" target="_blank" class="sb-link">Mở Nhật Ký Lỗi Xem Đối Chiếu Trong CSDL ↗</a>
+                </div>
+            </div>
+
             <div class="sandbox-footer">
                 <span>Phản hồi API gần nhất: <strong id="sandbox-last-status" style="color:#64748b;">Sẵn sàng thử nghiệm</strong></span>
                 <div class="sandbox-links">
@@ -173,12 +206,51 @@
 
             // 3. Nút Mô Phỏng Xung Đột Payload (HTTP 409)
             var btnConflict = document.getElementById('btn-sb-conflict');
+            var inspectorBox = document.getElementById('conflict-inspector-box');
+            var ciEventId = document.getElementById('ci-event-id');
+            var ciCol1Payload = document.getElementById('ci-col1-payload');
+            var ciCol2EventId = document.getElementById('ci-col2-eventid');
+            var ciCol2Payload = document.getElementById('ci-col2-payload');
+            var ciBadge = document.getElementById('ci-badge');
+            var ciFooterDesc = document.getElementById('ci-footer-desc');
+
             if (btnConflict) {
                 btnConflict.addEventListener('click', function() {
                     var conflictEventId = 'conflict_' + Date.now();
                     var sessId = window.WebTracker.getSessionId();
                     var endpoint = '../../api/track.php';
                     var trackingKey = 'trk_site_a_alpha_shop_2026';
+
+                    var origPayload = {
+                        tracking_key: trackingKey,
+                        event_id: conflictEventId,
+                        session_id: sessId,
+                        event_name: 'button_click',
+                        page_path: window.location.pathname,
+                        occurred_at: new Date().toISOString(),
+                        properties: {
+                            element_id: 'btn-view-ultrabook',
+                            item_name: 'Laptop Pro Ultrabook 14"',
+                            price: 24990000,
+                            version: 1
+                        }
+                    };
+
+                    var tamperedPayload = {
+                        tracking_key: trackingKey,
+                        event_id: conflictEventId,
+                        session_id: sessId,
+                        event_name: 'button_click',
+                        page_path: window.location.pathname,
+                        occurred_at: new Date().toISOString(),
+                        properties: {
+                            element_id: 'btn-view-ultrabook',
+                            item_name: 'Laptop Pro Ultrabook 14"',
+                            price: 1000, // ĐÃ BỊ SỬA TỪ 24.990.000đ XUỐNG 1.000đ
+                            tampered: true,
+                            version: 2
+                        }
+                    };
 
                     statusLabel.innerText = 'Đang gửi sự kiện gốc #1...';
                     statusLabel.style.color = '#2563eb';
@@ -187,15 +259,7 @@
                     fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'X-Tracking-Key': trackingKey },
-                        body: JSON.stringify({
-                            tracking_key: trackingKey,
-                            event_id: conflictEventId,
-                            session_id: sessId,
-                            event_name: 'button_click',
-                            page_path: window.location.pathname,
-                            occurred_at: new Date().toISOString(),
-                            properties: { element_id: 'btn-conflict-original', payload_version: 1 }
-                        })
+                        body: JSON.stringify(origPayload)
                     }).then(function(r1) {
                         return r1.json();
                     }).then(function(d1) {
@@ -203,22 +267,26 @@
                         return fetch(endpoint, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json', 'X-Tracking-Key': trackingKey },
-                            body: JSON.stringify({
-                                tracking_key: trackingKey,
-                                event_id: conflictEventId,
-                                session_id: sessId,
-                                event_name: 'button_click',
-                                page_path: window.location.pathname,
-                                occurred_at: new Date().toISOString(),
-                                properties: { element_id: 'btn-conflict-TAMPERED', payload_version: 2, hacked: true }
-                            })
+                            body: JSON.stringify(tamperedPayload)
                         });
                     }).then(function(r2) {
                         return r2.json().then(function(d2) {
                             if (r2.status === 409) {
-                                statusLabel.innerText = 'HTTP 409 Conflict: PAYLOAD_CONFLICT (Đã ghi vào DB)';
+                                statusLabel.innerText = 'HTTP 409 Conflict: PAYLOAD_CONFLICT (Đã lưu vào DB)';
                                 statusLabel.style.color = '#dc2626';
-                                showToast('⚠️ <b>HTTP 409 Conflict:</b> Phát hiện cùng event_id nhưng sai lệch SHA-256! Card "Lỗi tiếp nhận" trên Dashboard đã tăng +1.', '#dc2626');
+                                showToast('⚠️ <b>HTTP 409 Conflict:</b> Cùng Event ID nhưng bị sửa giá! Đã chặn và ghi vào CSDL.', '#dc2626');
+
+                                // Hiển thị bảng đối chiếu xung đột trực quan
+                                if (inspectorBox) {
+                                    inspectorBox.style.display = 'block';
+                                    ciBadge.className = 'inspector-badge badge-conflict';
+                                    ciBadge.innerText = 'Phát Hiện Xung Đột Dữ Liệu (HTTP 409 Conflict)';
+                                    ciEventId.innerText = conflictEventId;
+                                    ciCol1Payload.innerText = JSON.stringify(origPayload.properties, null, 2);
+                                    ciCol2EventId.innerText = conflictEventId;
+                                    ciCol2Payload.innerText = JSON.stringify(tamperedPayload.properties, null, 2);
+                                    ciFooterDesc.innerHTML = '⚡ <b>Tại sao xung đột:</b> Lần 1 gửi giá <code>24.990.000đ</code> đã lưu vào DB. Lần 2 cố tình gửi lại cùng Event ID <code>' + conflictEventId + '</code> nhưng sửa giá thành <code>1.000đ</code>. API phát hiện sai lệch mã băm SHA-256 nên lập tức chặn ghi đè (Anti-Tampering) và ghi vào <code>event_ingest_errors</code>!';
+                                }
                             } else {
                                 statusLabel.innerText = 'HTTP ' + r2.status + ' (' + (d2.error || 'OK') + ')';
                             }

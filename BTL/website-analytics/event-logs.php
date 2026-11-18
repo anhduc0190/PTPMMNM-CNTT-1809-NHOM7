@@ -42,12 +42,27 @@ $stmtEvents = $pdo->prepare($eventsSql);
 $stmtEvents->execute($params);
 $validEvents = $stmtEvents->fetchAll();
 
-// 3. Dữ liệu Tab 2: Nhật ký lỗi tiếp nhận (event_ingest_errors)
+// 3. Dữ liệu Tab 2: Nhật ký lỗi tiếp nhận (event_ingest_errors) kết hợp bản ghi gốc
 $stmtErrors = $pdo->prepare('
-    SELECT `error_id`, `event_id`, `error_code`, `payload_hash`, `occurred_at`, `received_at`, `details`
-    FROM `event_ingest_errors`
-    WHERE `website_id` = ? AND `received_at` BETWEEN ? AND ?
-    ORDER BY `received_at` DESC, `error_id` DESC
+    SELECT 
+        err.`error_id`, 
+        err.`website_id`,
+        err.`event_id`, 
+        err.`error_code`, 
+        err.`payload_hash` AS `err_hash`, 
+        err.`occurred_at` AS `err_occurred_at`, 
+        err.`received_at`, 
+        err.`details`,
+        orig.`event_row_id` AS `orig_row_id`,
+        orig.`event_name` AS `orig_event_name`,
+        orig.`page_path` AS `orig_page_path`,
+        orig.`payload_hash` AS `orig_hash`,
+        orig.`properties` AS `orig_properties`,
+        orig.`occurred_at` AS `orig_occurred_at`
+    FROM `event_ingest_errors` err
+    LEFT JOIN `events` orig ON orig.`website_id` = err.`website_id` AND orig.`event_id` = err.`event_id`
+    WHERE err.`website_id` = ? AND err.`received_at` BETWEEN ? AND ?
+    ORDER BY err.`received_at` DESC, err.`error_id` DESC
     LIMIT 100
 ');
 $stmtErrors->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
@@ -210,12 +225,12 @@ $errorLogs = $stmtErrors->fetchAll();
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th style="width:80px;">Mã Lỗi ID</th>
+                            <th style="width:75px;">Mã Lỗi ID</th>
                             <th>Thời Điểm Nhận</th>
                             <th>Mã Lỗi (Error Code)</th>
                             <th>Event ID Gửi Lên</th>
                             <th>Mã Băm Payload</th>
-                            <th>Chi Tiết Lỗi / Mô Tả</th>
+                            <th>Chi Tiết Lỗi &amp; Đối Chiếu Xung Đột</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -228,7 +243,7 @@ $errorLogs = $stmtErrors->fetchAll();
                                 <td>
                                     <?php if ($err['error_code'] === 'PAYLOAD_CONFLICT'): ?>
                                         <span class="badge badge-red">
-                                            <?= render_icon('alert-circle', '', 11) ?>
+                                            <?= render_icon('alert-triangle', '', 11) ?>
                                             PAYLOAD_CONFLICT
                                         </span>
                                     <?php elseif ($err['error_code'] === 'LATE_EVENT_EXCEEDED'): ?>
@@ -245,22 +260,89 @@ $errorLogs = $stmtErrors->fetchAll();
                                 </td>
                                 <td>
                                     <?php if (!empty($err['event_id'])): ?>
-                                        <code style="font-size:0.75rem;"><?= e($err['event_id']) ?></code>
+                                        <code style="font-size:0.75rem; font-weight:600;"><?= e($err['event_id']) ?></code>
                                     <?php else: ?>
                                         <span style="color:var(--text-muted);">-</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <?php if (!empty($err['payload_hash'])): ?>
-                                        <span style="font-family:monospace; font-size:0.75rem; color:#64748b;">
-                                            <?= substr(e($err['payload_hash']), 0, 12) ?>...
+                                    <?php if (!empty($err['err_hash'])): ?>
+                                        <span style="font-family:monospace; font-size:0.75rem; color:#b91c1c; font-weight:600;">
+                                            <?= substr(e($err['err_hash']), 0, 10) ?>...<?= substr(e($err['err_hash']), -6) ?>
                                         </span>
                                     <?php else: ?>
                                         <span style="color:var(--text-muted);">-</span>
                                     <?php endif; ?>
                                 </td>
-                                <td style="color:var(--accent-red-text); font-weight:500;">
-                                    <?= e($err['details'] ?? 'Không có chi tiết') ?>
+                                <td>
+                                    <?php if ($err['error_code'] === 'PAYLOAD_CONFLICT'): ?>
+                                        <div style="color:#b91c1c; font-weight:600; margin-bottom:0.25rem;">
+                                            <?= e($err['details'] ?? 'Cùng event_id nhưng khác nội dung payload') ?>
+                                        </div>
+
+                                        <?php if (!empty($err['orig_row_id'])): ?>
+                                            <details class="conflict-inspect-details" style="margin-top:0.4rem; cursor:pointer;">
+                                                <summary style="font-size:0.78rem; font-weight:600; color:#2563eb; outline:none; user-select:none;">
+                                                    🔍 Bấm xem đối chiếu: Bản ghi gốc (Row #<?= (int)$err['orig_row_id'] ?>) vs Yêu cầu xung đột
+                                                </summary>
+                                                <div style="margin-top:0.5rem; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:0.75rem; font-size:0.78rem; cursor:default;">
+                                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem;">
+                                                        <!-- Cột 1: Bản ghi gốc đã lưu trong CSDL -->
+                                                        <div style="background:#ffffff; border:1px solid #a7f3d0; border-left:3px solid #10b981; padding:0.6rem; border-radius:6px;">
+                                                            <div style="font-weight:700; color:#047857; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.3rem;">
+                                                                <?= render_icon('check-circle', '', 12, '#047857') ?>
+                                                                Bản Ghi Gốc Trong CSDL (#<?= (int)$err['orig_row_id'] ?>)
+                                                            </div>
+                                                            <div style="margin-bottom:0.2rem;"><strong>Sự kiện:</strong> <code><?= e($err['orig_event_name']) ?></code></div>
+                                                            <div style="margin-bottom:0.2rem;"><strong>Đường dẫn:</strong> <code><?= e($err['orig_page_path']) ?></code></div>
+                                                            <div style="margin-bottom:0.2rem;">
+                                                                <strong>Thuộc tính (Props):</strong>
+                                                                <code style="display:block; margin-top:2px; word-break:break-all; color:#065f46; background:#ecfdf5; padding:0.25rem; border-radius:4px;">
+                                                                    <?= e($err['orig_properties'] ?: 'null') ?>
+                                                                </code>
+                                                            </div>
+                                                            <div><strong>Mã băm gốc:</strong> <code style="font-size:0.72rem; color:#64748b;"><?= substr(e($err['orig_hash']), 0, 16) ?>...</code></div>
+                                                        </div>
+
+                                                        <!-- Cột 2: Yêu cầu gửi lại bị xung đột -->
+                                                        <div style="background:#ffffff; border:1px solid #fecaca; border-left:3px solid #ef4444; padding:0.6rem; border-radius:6px;">
+                                                            <div style="font-weight:700; color:#b91c1c; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.3rem;">
+                                                                <?= render_icon('alert-triangle', '', 12, '#b91c1c') ?>
+                                                                Lần Gửi Lại Bị Xung Đột (HTTP 409)
+                                                            </div>
+                                                            <div style="margin-bottom:0.2rem;"><strong>Cùng Event ID:</strong> <code><?= e($err['event_id']) ?></code></div>
+                                                            <div style="margin-bottom:0.2rem;"><strong>Thời điểm gửi:</strong> <?= date('H:i:s d/m/Y', strtotime($err['err_occurred_at'])) ?></div>
+                                                            <div style="margin-bottom:0.2rem;">
+                                                                <strong>Nội dung gửi lên:</strong>
+                                                                <span style="display:block; margin-top:2px; color:#991b1b; font-style:italic;">(Nội dung payload bị can thiệp/sửa đổi)</span>
+                                                            </div>
+                                                            <div><strong>Mã băm mới:</strong> <code style="font-size:0.72rem; color:#b91c1c;"><?= substr(e($err['err_hash']), 0, 16) ?>...</code></div>
+                                                        </div>
+                                                    </div>
+                                                    <div style="margin-top:0.5rem; padding-top:0.4rem; border-top:1px dashed #cbd5e1; font-size:0.75rem; color:#475569;">
+                                                        🛡️ <strong>Chốt chặn an toàn:</strong> Do mã SHA-256 mới khác với mã gốc, backend từ chối ghi đè sự kiện và trả về HTTP 409 để chống gian lận dữ liệu.
+                                                    </div>
+                                                </div>
+                                            </details>
+                                        <?php else: ?>
+                                            <div style="font-size:0.78rem; color:#64748b; font-style:italic;">
+                                                Phát hiện gửi lại cùng Event ID nhưng nội dung bị sai lệch SHA-256.
+                                            </div>
+                                        <?php endif; ?>
+
+                                    <?php elseif ($err['error_code'] === 'LATE_EVENT_EXCEEDED'): ?>
+                                        <div style="color:#b45309; font-weight:600;">
+                                            <?= e($err['details'] ?? 'Sự kiện đến muộn quá 24 giờ') ?>
+                                        </div>
+                                        <div style="font-size:0.75rem; color:#64748b; margin-top:0.2rem;">
+                                            Thời điểm xảy ra: <code><?= date('H:i:s d/m/Y', strtotime($err['err_occurred_at'])) ?></code> (Cũ hơn 24 giờ so với quy định)
+                                        </div>
+
+                                    <?php else: ?>
+                                        <div style="color:var(--text-secondary); font-weight:500;">
+                                            <?= e($err['details'] ?? 'Sự kiện chưa được cấu hình hoặc đã bị vô hiệu hoá') ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
