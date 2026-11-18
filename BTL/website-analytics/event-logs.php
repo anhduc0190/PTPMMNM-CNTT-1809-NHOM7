@@ -21,6 +21,35 @@ $stmtErrCount = $pdo->prepare('SELECT COUNT(*) FROM `event_ingest_errors` WHERE 
 $stmtErrCount->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
 $totalErrors = (int)$stmtErrCount->fetchColumn();
 
+// Đếm tổng số sự kiện hợp lệ trong khoảng thời gian này (không bị giới hạn bởi bộ lọc)
+$stmtTotalEvents = $pdo->prepare('SELECT COUNT(*) FROM `events` WHERE `website_id` = ? AND `occurred_at` BETWEEN ? AND ?');
+$stmtTotalEvents->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
+$totalAllValidEvents = (int)$stmtTotalEvents->fetchColumn();
+
+// Thống kê số lượng từng loại sự kiện (theo website và khoảng thời gian)
+$stmtEvtStats = $pdo->prepare('
+    SELECT `event_name`, COUNT(*) as cnt 
+    FROM `events` 
+    WHERE `website_id` = ? AND `occurred_at` BETWEEN ? AND ? 
+    GROUP BY `event_name` 
+    ORDER BY cnt DESC
+');
+$stmtEvtStats->execute([$selectedWebsiteId, $fromDateTime, $toDateTime]);
+$eventCountsRaw = $stmtEvtStats->fetchAll();
+$eventCounts = [];
+foreach ($eventCountsRaw as $er) {
+    $eventCounts[$er['event_name']] = (int)$er['cnt'];
+}
+
+// Lấy thêm các sự kiện đã khai báo trong event_definitions (kể cả sự kiện mới chưa phát sinh dữ liệu)
+$stmtDefs = $pdo->prepare('SELECT `event_name` FROM `event_definitions` WHERE `website_id` = ? AND `status` = "enabled" ORDER BY `event_name` ASC');
+$stmtDefs->execute([$selectedWebsiteId]);
+$definedEvents = $stmtDefs->fetchAll(PDO::FETCH_COLUMN);
+
+// Hợp nhất danh sách tất cả loại sự kiện có sẵn
+$allEventTypes = array_unique(array_merge(array_keys($eventCounts), $definedEvents));
+sort($allEventTypes);
+
 // 2. Dữ liệu Tab 1: Sự kiện hợp lệ (events)
 $eventsSql = '
     SELECT `event_row_id`, `event_id`, `session_id`, `event_name`, `page_path`, `occurred_at`, `received_at`, `payload_hash`, `properties`
@@ -74,12 +103,12 @@ $errorLogs = $stmtErrors->fetchAll();
     <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>&tab=valid" 
        class="btn <?= $viewTab === 'valid' ? 'btn-primary' : 'btn-outline' ?> btn-sm">
         <?= render_icon('check-circle', '', 14) ?>
-        Sự Kiện Hợp Lệ Đã Tiếp Nhận (<?= count($validEvents) ?>)
+        Sự Kiện Hợp Lệ Đã Tiếp Nhận (<?= number_format($totalAllValidEvents) ?>)
     </a>
     <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>&tab=errors" 
        class="btn <?= $viewTab === 'errors' ? 'btn-danger' : 'btn-outline' ?> btn-sm">
         <?= render_icon('alert-triangle', '', 14) ?>
-        Nhật Ký Lỗi Tiếp Nhận & Xung Đột (<?= $totalErrors ?>)
+        Nhật Ký Lỗi Tiếp Nhận & Xung Đột (<?= number_format($totalErrors) ?>)
     </a>
 </div>
 
@@ -97,33 +126,131 @@ $errorLogs = $stmtErrors->fetchAll();
             </span>
         </div>
 
-        <!-- Bộ lọc bổ sung -->
-        <form method="GET" style="display:flex; gap:0.75rem; margin-bottom:1.25rem; flex-wrap:wrap; align-items:center;">
-            <input type="hidden" name="website_id" value="<?= $selectedWebsiteId ?>">
-            <input type="hidden" name="from_date" value="<?= e($fromDate) ?>">
-            <input type="hidden" name="to_date" value="<?= e($toDate) ?>">
-            <input type="hidden" name="tab" value="valid">
+        <!-- KHU VỰC TÌM KIẾM & BỘ LỌC SỰ KIỆN -->
+        <div style="background:var(--bg-muted); border:1px solid var(--border-color); border-radius:10px; padding:1.1rem 1.25rem; margin-bottom:1.25rem;">
+            <form method="GET" id="event-filter-form" style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:flex-end;">
+                <input type="hidden" name="website_id" value="<?= $selectedWebsiteId ?>">
+                <input type="hidden" name="from_date" value="<?= e($fromDate) ?>">
+                <input type="hidden" name="to_date" value="<?= e($toDate) ?>">
+                <input type="hidden" name="tab" value="valid">
 
-            <select name="event_name" class="form-select">
-                <option value="">-- Tất cả loại sự kiện --</option>
-                <option value="page_view" <?= $filterEvent === 'page_view' ? 'selected' : '' ?>>page_view</option>
-                <option value="button_click" <?= $filterEvent === 'button_click' ? 'selected' : '' ?>>button_click</option>
-                <option value="download_start" <?= $filterEvent === 'download_start' ? 'selected' : '' ?>>download_start</option>
-                <option value="download_complete" <?= $filterEvent === 'download_complete' ? 'selected' : '' ?>>download_complete</option>
-            </select>
+                <!-- 1. Dropdown chọn loại sự kiện -->
+                <div style="min-width:260px; flex:1;">
+                    <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+                        <?= render_icon('filter', '', 12) ?>
+                        Chọn loại sự kiện (Tự động lọc ngay):
+                    </label>
+                    <select name="event_name" id="select-event-name" class="form-select" style="width:100%; height:38px; font-weight:500;" onchange="this.form.submit()">
+                        <option value="">-- Tất cả loại sự kiện (<?= number_format($totalAllValidEvents) ?>) --</option>
+                        <?php foreach ($allEventTypes as $evt): ?>
+                            <?php $cnt = $eventCounts[$evt] ?? 0; ?>
+                            <option value="<?= e($evt) ?>" <?= $filterEvent === $evt ? 'selected' : '' ?>>
+                                <?= e($evt) ?> (<?= number_format($cnt) ?> sự kiện)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-            <input type="text" name="page_path" class="form-input" placeholder="Lọc theo path (vd: /products)" value="<?= e($filterPage) ?>">
-            <button type="submit" class="btn btn-primary btn-sm">
-                <?= render_icon('filter', '', 13) ?>
-                Lọc
-            </button>
-            <?php if (!empty($filterEvent) || !empty($filterPage)): ?>
-                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>&tab=valid" class="btn btn-outline btn-sm">
-                    <?= render_icon('refresh-cw', '', 12) ?>
-                    Xóa lọc
+                <!-- 2. Lọc theo Path -->
+                <div style="min-width:200px; flex:1;">
+                    <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.78rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+                        <?= render_icon('globe', '', 12) ?>
+                        Đường dẫn trang (Path):
+                    </label>
+                    <input type="text" name="page_path" class="form-input" style="width:100%; height:38px;" placeholder="vd: /products, /checkout" value="<?= e($filterPage) ?>">
+                </div>
+
+                <!-- 3. Nút Lọc và Nút Hiện Tất Cả -->
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                    <button type="submit" class="btn btn-primary btn-sm" style="height:38px; padding:0 1.1rem; display:inline-flex; align-items:center; gap:0.4rem;">
+                        <?= render_icon('filter', '', 13) ?>
+                        Lọc Dữ Liệu
+                    </button>
+                    <?php if (!empty($filterEvent) || !empty($filterPage)): ?>
+                        <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>&tab=valid" 
+                           class="btn btn-outline btn-sm" 
+                           style="height:38px; display:inline-flex; align-items:center; gap:0.4rem; color:var(--primary); border-color:var(--primary);"
+                           title="Hiển thị lại toàn bộ sự kiện">
+                            <?= render_icon('refresh-cw', '', 12) ?>
+                            Hiện tất cả sự kiện
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </form>
+
+            <!-- 4. HÀNG NÚT BẤM NHANH (QUICK-FILTER PILLS) -->
+            <div style="margin-top:0.9rem; padding-top:0.75rem; border-top:1px dashed var(--border-color); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <span style="font-size:0.78rem; font-weight:700; color:var(--text-secondary); display:inline-flex; align-items:center; gap:0.35rem; margin-right:0.25rem;">
+                    <?= render_icon('sparkles', '', 13, 'var(--primary)') ?>
+                    Chọn nhanh:
+                </span>
+
+                <!-- Pill Tất Cả -->
+                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>&tab=valid&page_path=<?= urlencode($filterPage) ?>" 
+                   class="badge <?= empty($filterEvent) ? 'badge-blue' : 'badge-gray' ?>" 
+                   style="cursor:pointer; text-decoration:none; padding:0.38rem 0.75rem; font-size:0.78rem; border-radius:6px; font-weight:<?= empty($filterEvent) ? '700' : '500' ?>; border:1px solid <?= empty($filterEvent) ? 'var(--primary)' : 'var(--border-color)' ?>;"
+                   title="Xem tất cả loại sự kiện">
+                    <?= render_icon('check-circle', '', 11) ?>
+                    Tất cả (<?= number_format($totalAllValidEvents) ?>)
                 </a>
-            <?php endif; ?>
-        </form>
+
+                <!-- Pills từng loại sự kiện -->
+                <?php foreach ($allEventTypes as $evt): ?>
+                    <?php 
+                    $cnt = $eventCounts[$evt] ?? 0;
+                    $isActive = ($filterEvent === $evt);
+                    $iconPill = 'activity';
+                    if ($evt === 'page_view') $iconPill = 'eye';
+                    elseif ($evt === 'button_click') $iconPill = 'zap';
+                    elseif ($evt === 'download_start') $iconPill = 'download';
+                    elseif ($evt === 'download_complete') $iconPill = 'check';
+                    ?>
+                    <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>&tab=valid&event_name=<?= urlencode($evt) ?>&page_path=<?= urlencode($filterPage) ?>" 
+                       class="badge <?= $isActive ? 'badge-blue' : 'badge-gray' ?>" 
+                       style="cursor:pointer; text-decoration:none; padding:0.38rem 0.75rem; font-size:0.78rem; border-radius:6px; font-weight:<?= $isActive ? '700' : '500' ?>; border:1px solid <?= $isActive ? 'var(--primary)' : 'var(--border-color)' ?>;"
+                       title="Chỉ xem sự kiện <?= e($evt) ?>">
+                        <?= render_icon($iconPill, '', 11) ?>
+                        <?= e($evt) ?> (<?= number_format($cnt) ?>)
+                    </a>
+                <?php endforeach; ?>
+            </div>
+
+            <!-- 5. TÌM KIẾM TRỰC TIẾP TỨC THÌ TRÊN BẢNG (CLIENT-SIDE LIVE SEARCH) -->
+            <div style="margin-top:0.85rem; padding-top:0.75rem; border-top:1px dashed var(--border-color); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.65rem;">
+                <div style="position:relative; width:100%; max-width:440px;">
+                    <input type="text" id="live-table-search" class="form-input" style="width:100%; height:36px; padding-left:2.3rem; font-size:0.82rem;" placeholder="Tìm nhanh theo từ khóa (sự kiện, path, UUID, session ID...)" onkeyup="filterTableRows(this.value)">
+                    <div style="position:absolute; left:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+                        <?= render_icon('search', '', 14) ?>
+                    </div>
+                </div>
+                <div id="live-search-count" style="font-size:0.8rem; color:var(--text-secondary); font-weight:500;">
+                    Hiển thị <strong><?= count($validEvents) ?></strong> / <?= number_format($totalAllValidEvents) ?> bản ghi
+                </div>
+            </div>
+        </div>
+
+        <?php if (!empty($filterEvent) || !empty($filterPage)): ?>
+            <!-- Thanh thông báo trạng thái lọc đang hoạt động -->
+            <div style="background:rgba(59, 130, 246, 0.08); border:1px solid rgba(59, 130, 246, 0.25); border-radius:8px; padding:0.65rem 1rem; margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem;">
+                    <?= render_icon('filter', '', 15, 'var(--primary)') ?>
+                    <span>
+                        Đang lọc: 
+                        <?php if (!empty($filterEvent)): ?>
+                            Loại sự kiện <strong style="color:var(--primary); font-family:monospace;"><?= e($filterEvent) ?></strong>
+                        <?php endif; ?>
+                        <?php if (!empty($filterPage)): ?>
+                            <?= !empty($filterEvent) ? ' &bull; ' : '' ?>Đường dẫn chứa <code style="color:var(--primary);"><?= e($filterPage) ?></code>
+                        <?php endif; ?>
+                        &mdash; Tìm thấy <strong><?= count($validEvents) ?></strong> bản ghi
+                    </span>
+                </div>
+                <a href="?website_id=<?= $selectedWebsiteId ?>&from_date=<?= e($fromDate) ?>&to_date=<?= e($toDate) ?>&tab=valid" class="btn btn-outline btn-sm" style="font-size:0.78rem;">
+                    <?= render_icon('x', '', 12) ?>
+                    Xem tất cả loại sự kiện
+                </a>
+            </div>
+        <?php endif; ?>
 
         <?php if (empty($validEvents)): ?>
             <div class="empty-state">
@@ -146,7 +273,7 @@ $errorLogs = $stmtErrors->fetchAll();
                             <th>Thuộc Tính (An Toàn)</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="valid-events-tbody">
                         <?php foreach ($validEvents as $row): ?>
                             <tr>
                                 <td><strong>#<?= (int)$row['event_row_id'] ?></strong></td>
@@ -282,8 +409,9 @@ $errorLogs = $stmtErrors->fetchAll();
 
                                         <?php if (!empty($err['orig_row_id'])): ?>
                                             <details class="conflict-inspect-details" style="margin-top:0.4rem; cursor:pointer;">
-                                                <summary style="font-size:0.78rem; font-weight:600; color:#2563eb; outline:none; user-select:none;">
-                                                    🔍 Bấm xem đối chiếu: Bản ghi gốc (Row #<?= (int)$err['orig_row_id'] ?>) vs Yêu cầu xung đột
+                                                <summary style="font-size:0.78rem; font-weight:600; color:#2563eb; outline:none; user-select:none; display:flex; align-items:center; gap:0.35rem;">
+                                                    <?= render_icon('search', '', 12) ?>
+                                                    Bấm xem đối chiếu: Bản ghi gốc (Row #<?= (int)$err['orig_row_id'] ?>) vs Yêu cầu xung đột
                                                 </summary>
                                                 <div style="margin-top:0.5rem; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:0.75rem; font-size:0.78rem; cursor:default;">
                                                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.65rem;">
@@ -319,8 +447,9 @@ $errorLogs = $stmtErrors->fetchAll();
                                                             <div><strong>Mã băm mới:</strong> <code style="font-size:0.72rem; color:#b91c1c;"><?= substr(e($err['err_hash']), 0, 16) ?>...</code></div>
                                                         </div>
                                                     </div>
-                                                    <div style="margin-top:0.5rem; padding-top:0.4rem; border-top:1px dashed #cbd5e1; font-size:0.75rem; color:#475569;">
-                                                        🛡️ <strong>Chốt chặn an toàn:</strong> Do mã SHA-256 mới khác với mã gốc, backend từ chối ghi đè sự kiện và trả về HTTP 409 để chống gian lận dữ liệu.
+                                                    <div style="margin-top:0.5rem; padding-top:0.4rem; border-top:1px dashed #cbd5e1; font-size:0.75rem; color:#475569; display:flex; align-items:center; gap:0.35rem;">
+                                                        <?= render_icon('shield-check', '', 14, '#047857') ?>
+                                                        <span><strong>Chốt chặn an toàn:</strong> Do mã SHA-256 mới khác với mã gốc, backend từ chối ghi đè sự kiện và trả về HTTP 409 để chống gian lận dữ liệu.</span>
                                                     </div>
                                                 </div>
                                             </details>
@@ -352,5 +481,51 @@ $errorLogs = $stmtErrors->fetchAll();
         <?php endif; ?>
     </div>
 <?php endif; ?>
+
+<script>
+function filterTableRows(query) {
+    const q = (query || '').toLowerCase().trim();
+    const tbody = document.getElementById('valid-events-tbody');
+    if (!tbody) return;
+    const rows = tbody.querySelectorAll('tr');
+    let visibleCount = 0;
+    let actualRowsCount = 0;
+    
+    rows.forEach(row => {
+        if (row.id === 'live-no-match-row') return;
+        actualRowsCount++;
+        const text = row.textContent.toLowerCase();
+        if (!q || text.includes(q)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    let noMatchRow = document.getElementById('live-no-match-row');
+    if (visibleCount === 0 && actualRowsCount > 0) {
+        if (!noMatchRow) {
+            noMatchRow = document.createElement('tr');
+            noMatchRow.id = 'live-no-match-row';
+            noMatchRow.innerHTML = '<td colspan="8" style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.88rem;">Không tìm thấy sự kiện nào khớp với từ khóa: <strong></strong></td>';
+            tbody.appendChild(noMatchRow);
+        }
+        noMatchRow.style.display = '';
+        noMatchRow.querySelector('strong').textContent = query;
+    } else if (noMatchRow) {
+        noMatchRow.style.display = 'none';
+    }
+
+    const countElem = document.getElementById('live-search-count');
+    if (countElem) {
+        if (!q) {
+            countElem.innerHTML = 'Hiển thị <strong>' + actualRowsCount + '</strong> bản ghi';
+        } else {
+            countElem.innerHTML = 'Tìm thấy <strong>' + visibleCount + '</strong> / ' + actualRowsCount + ' bản ghi';
+        }
+    }
+}
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

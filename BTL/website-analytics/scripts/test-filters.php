@@ -64,5 +64,14 @@ echo "Test D (Reports, Today): HTTP {$resD['code']} | Length: " . strlen($resD['
 $resE = http_req("{$baseUrl}/api/analytics-export.php?website_id=1&from_date=2026-11-19&to_date=2026-11-19", 'GET', [], $cookieFile);
 echo "Test E (Export CSV): HTTP {$resE['code']} | CSV bytes: " . strlen($resE['body']) . PHP_EOL;
 
+// Test F: Event Logs with event_name=page_view
+$resF = http_req("{$baseUrl}/event-logs.php?website_id=1&event_name=page_view", 'GET', [], $cookieFile);
+$hasPV = (strpos($resF['body'], 'page_view') !== false);
+echo "Test F (Event Logs Filter page_view): HTTP {$resF['code']} | Contains page_view: " . ($hasPV ? "YES" : "NO") . PHP_EOL;
+
+// Test G: Event Logs with all events
+$resG = http_req("{$baseUrl}/event-logs.php?website_id=1&event_name=", 'GET', [], $cookieFile);
+echo "Test G (Event Logs All Events): HTTP {$resG['code']} | Length: " . strlen($resG['body']) . PHP_EOL;
+
 if (file_exists($cookieFile)) unlink($cookieFile);
 echo "=== TẤT CẢ TEST BỘ LỌC ĐỀU THÀNH CÔNG! ===" . PHP_EOL;
