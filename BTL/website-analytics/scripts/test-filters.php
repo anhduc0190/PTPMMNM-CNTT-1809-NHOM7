@@ -73,5 +73,9 @@ echo "Test F (Event Logs Filter page_view): HTTP {$resF['code']} | Contains page
 $resG = http_req("{$baseUrl}/event-logs.php?website_id=1&event_name=", 'GET', [], $cookieFile);
 echo "Test G (Event Logs All Events): HTTP {$resG['code']} | Length: " . strlen($resG['body']) . PHP_EOL;
 
+// Test H: Live Demo Runner
+$resH = http_req("{$baseUrl}/live-demo.php?website_id=1", 'GET', [], $cookieFile);
+echo "Test H (Live Demo Runner Site 1): HTTP {$resH['code']} | Length: " . strlen($resH['body']) . PHP_EOL;
+
 if (file_exists($cookieFile)) unlink($cookieFile);
 echo "=== TẤT CẢ TEST BỘ LỌC ĐỀU THÀNH CÔNG! ===" . PHP_EOL;

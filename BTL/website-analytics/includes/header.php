@@ -149,6 +149,12 @@ if (file_exists($cssInlineFile)) {
                     <?= render_icon('rocket', '', 14) ?>
                     <span>Mở Demo Site B</span>
                 </a>
+                <?php if ($selectedWebsiteId > 2): ?>
+                    <a href="<?= $baseUrl ?>/live-demo.php?website_id=<?= $selectedWebsiteId ?>" target="_blank" class="pill-btn-site-a" style="background:#eff6ff; color:#2563eb; border-color:#bfdbfe;" title="Mở trang Chạy Thử trực tiếp cho Website đang chọn">
+                        <?= render_icon('rocket', '', 14, '#2563eb') ?>
+                        <span>Chạy Thử Web #<?= $selectedWebsiteId ?></span>
+                    </a>
+                <?php endif; ?>
 
                 <!-- Date Range Dropdown Popover Pill -->
                 <div class="date-popover-wrapper">
