@@ -356,7 +356,7 @@ def create_full_report(output_path):
         ("3.8. Xử lý sự cố và khắc phục lỗi thực tế (Troubleshooting)", 47),
         ("3.9. Hướng dẫn cài đặt, vận hành và tái lập hệ thống", 48),
         ("3.10. Hồ sơ bàn giao sản phẩm", 49),
-        ("KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN", 50),
+        ("KẾT LUẬN", 50),
         ("TÀI LIỆU THAM KHẢO", 51),
         ("PHỤ LỤC", 52)
     ]
@@ -764,27 +764,13 @@ def create_full_report(output_path):
     # =========================================================================
     # KẾT LUẬN
     # =========================================================================
-    add_h1("KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN")
+    add_h1("KẾT LUẬN")
 
-    add_h2("1. Kết quả đạt được")
-    add_p("Sau quá trình nghiên cứu, thiết kế và phát triển nghiêm túc, Nhóm 07 đã hoàn thành xuất sắc toàn bộ các mục tiêu đặt ra của Đề tài 17 'Xây dựng công cụ thống kê lượt truy cập và thao tác trên website':")
-    add_p("• Xây dựng thành công bộ JavaScript Tracking SDK thuần, dung lượng nhỏ gọn, tự động thu thập sự kiện bất đồng bộ và tự sinh mã UUID/Session duy nhất.")
-    add_p("• Phát triển REST API tiếp nhận sự kiện tốc độ cao, hiện thực hóa thành công cơ chế chống đếm trùng Idempotent 3 nhánh (Case A, Case B, Case C) bằng thuật toán chuẩn hóa JSON và hàm băm SHA-256.")
-    add_p("• Xây dựng cơ sở dữ liệu chuẩn hóa 8 bảng trên MariaDB/MySQL với hệ thống chỉ mục đa cột tối ưu, đáp ứng các tiêu chuẩn bảo mật và toàn vẹn dữ liệu nghiêm ngặt.")
-    add_p("• Xây dựng thuật toán phân tích chuỗi chuyển đổi (Conversion Funnel) 3 bước chuẩn xác, phát hiện vi phạm thứ tự thời gian và người dùng bỏ dở giữa chừng.")
-    add_p("• Triển khai thành công mô hình phân quyền bảo mật RBAC phân định quyền hạn Admin và Member rõ ràng.")
-    add_p("• Tích hợp Trung tâm kiểm thử tự động 12 tiêu chí Rubric đạt tỷ lệ vượt qua tuyệt đối 100% (12/12 bài test PASS).")
+    add_p("Về ưu điểm và kết quả đạt được, đề tài đã xây dựng thành công một hệ sinh thái Web Analytics mã nguồn mở hoàn chỉnh, vận hành ổn định trên nền tảng PHP 8.2 thuần kết hợp PDO và cơ sở dữ liệu MariaDB, độc lập 100% không phụ thuộc vào các dịch vụ đám mây đóng kín của bên thứ ba. Hệ thống sở hữu bộ JavaScript Tracking SDK siêu nhẹ (<8KB), tự động thu thập bất đồng bộ và duy trì phiên ẩn danh an toàn. Điểm sáng nổi bật của dự án là giải thuật chống đếm trùng Idempotent 3 nhánh (Case A, B, C) dựa trên mã băm SHA-256 chuẩn hóa, khả năng phân tách chính xác phiên truy cập qua nửa đêm (23:58 và 00:03 theo giờ Việt Nam), cơ chế từ chối sự kiện trễ quá 24 giờ và thuật toán phân tích chuỗi thao tác Funnel 3 bước với 4 điều kiện kiểm tra thứ tự thời gian chặt chẽ. Hệ thống cũng đã triển khai thành công mô hình phân quyền bảo mật RBAC, cơ chế Whitelist bảo vệ quyền riêng tư tuyệt đối (0 trường nhạy cảm trong CSDL) và tích hợp Trung tâm kiểm thử tự động đạt tỷ lệ vượt qua tuyệt đối 12/12 tiêu chí Rubric (PASS 100%) ngay trên giao diện web.")
 
-    add_h2("2. Hạn chế của hệ thống")
-    add_p("Mặc dù đã đạt được nhiều kết quả xuất sắc, hệ thống vẫn còn một số điểm có thể cải tiến:")
-    add_p("• Dữ liệu hiện tại được lưu trữ trực tiếp vào cơ sở dữ liệu quan hệ MariaDB. Với các website có lưu lượng hàng chục triệu sự kiện mỗi ngày, hệ thống cần được bổ sung thêm một tầng hàng đợi đệm (Message Queue như Redis hoặc Apache Kafka) trước khi ghi vào cơ sở dữ liệu chính.")
-    add_p("• Giao diện báo cáo chưa tích hợp bản đồ nhiệt (Heatmap) thể hiện tọa độ nhấp chuột của người dùng trên trang web.")
+    add_p("Về nhược điểm và hạn chế tồn tại, mặc dù đã đáp ứng trọn vẹn toàn bộ các yêu cầu kỹ thuật của đề cương bài tập lớn, hệ thống vẫn còn một số điểm cần tiếp tục hoàn thiện do giới hạn về thời gian nghiên cứu và tài nguyên phần cứng thử nghiệm. Cụ thể, kiến trúc tiếp nhận hiện tại thực hiện ghi nhận trực tiếp vào cơ sở dữ liệu quan hệ MariaDB mà chưa có tầng hàng đợi đệm bất đồng bộ chuyên dụng (như Redis Queue hay Apache Kafka), điều này có thể dẫn đến hiện tượng nghẽn I/O khi hệ thống phải đối mặt với lưu lượng truy cập tăng vọt đột biến (hàng chục nghìn request mỗi giây). Ngoài ra, hệ thống mới chỉ tập trung phân tích các sự kiện có chủ đích (lượt xem trang, click nút bấm, tiến trình tải tài liệu) mà chưa hỗ trợ phân tích bản đồ nhiệt nhấp chuột (Click/Scroll Heatmap), chưa đo lường độ sâu cuộn trang và chưa tích hợp tính năng ghi hình lại phiên làm việc của người dùng (Session Replay).")
 
-    add_h2("3. Hướng phát triển trong tương lai")
-    add_p("Trong các giai đoạn phát triển tiếp theo, nhóm định hướng mở rộng hệ thống với các tính năng nâng cao:")
-    add_p("1. Tích hợp công nghệ đệm Redis để xử lý hàng đợi sự kiện quy mô lớn (High Throughput Event Streaming).")
-    add_p("2. Ứng dụng trí tuệ nhân tạo (Machine Learning / Deep Learning) để tự động phát hiện các hành vi gian lận lượt xem, spam click từ bot mạng và dự đoán xu hướng rời bỏ website của khách hàng.")
-    add_p("3. Phát triển thêm tính năng ghi hình phiên làm việc ẩn danh (Session Replay) và bản đồ nhiệt (Heatmap) giúp tối ưu hóa giao diện người dùng chuyên sâu.")
+    add_p("Về hướng phát triển chủ đề trong tương lai, nhóm nghiên cứu định hướng tiếp tục nâng cấp và mở rộng nền tảng theo ba hướng chiến lược trọng tâm: Thứ nhất, tối ưu hóa hạ tầng kiến trúc bằng cách triển khai hàng đợi đệm Redis, phân tách cơ chế Đọc/Ghi (CQRS / Master-Slave Replication) và đóng gói hệ thống dưới dạng vi dịch vụ (Microservices với Docker/Kubernetes) để nâng cao khả năng chịu tải lên quy mô hàng triệu sự kiện mỗi ngày. Thứ hai, ứng dụng các mô hình học máy (Machine Learning) để xây dựng tính năng phát hiện lưu lượng truy cập bất thường (Anomalous Traffic Detection), tự động sàng lọc bot spam click và phân tích dự đoán hành vi rời bỏ trang của khách hàng. Thứ ba, phát triển thêm các module trực quan hóa trải nghiệm người dùng nâng cao như bản đồ nhiệt Heatmap, biểu đồ luồng hành trình người dùng (User Journey Flow) và xây dựng bộ RESTful Webhook mở rộng cho phép tích hợp dữ liệu phân tích linh hoạt vào các hệ thống quản trị quan hệ khách hàng (CRM, ERP) của doanh nghiệp.")
 
     doc.add_page_break()
 
